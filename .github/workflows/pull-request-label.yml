@@ -1,0 +1,34 @@
+name: Pull Request CI Label
+
+on:
+  pull_request_target:
+    branches:
+      - main
+    types:
+      - labeled
+
+defaults:
+  run:
+    working-directory: ./
+
+permissions:
+  # This permission is required by `actions-ecosystem/action-remove-label`
+  pull-requests: write
+
+jobs:
+  # This Job removes the `github_actions:pull-request` label after it got applied
+  # which allows people with write access to the repository to easily reapply the label if they need to trigger
+  # this Workflow again
+  remove_pull_request_label:
+    name: Remove Pull Request Label
+    runs-on: ubuntu-latest
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@63c24ba6bd7ba022e95695ff85de572c04a18142 # v2.7.0
+        with:
+          egress-policy: audit
+
+      - name: Remove GitHub Actions Label
+        uses: actions-ecosystem/action-remove-labels@2ce5d41b4b6aa8503e285553f75ed56e0a40bae0 # v1.3.0
+        with:
+          labels: github_actions:pull-request
