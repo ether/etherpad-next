@@ -1,0 +1,51 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: '/'
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: meta
+    open-pull-requests-limit: 10
+  - package-ecosystem: npm
+    directory: '/'
+    versioning-strategy: increase
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: meta
+    groups:
+      fromat:
+        patterns:
+          - 'prettier'
+          - 'prettier-plugin-tailwindcss'
+      lint:
+        patterns:
+          - 'eslint'
+          - 'eslint-*'
+          - 'stylelint'
+          - 'stylelint-*'
+        exclude-patterns:
+          - 'eslint-plugin-storybook'
+      storybook:
+        patterns:
+          - 'storybook'
+          - '@storybook/*'
+          - 'eslint-plugin-storybook'
+      next-js:
+        patterns:
+          - 'next'
+      react:
+        patterns:
+          - 'react'
+          - 'react-dom'
+          - '@types/react'
+          - '@types/react-dom'
+      tailwind:
+        patterns:
+          - 'tailwindcss'
+    ignore:
+      # Manually update major versions of @types/node with the version specified within .nvmrc
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
+    open-pull-requests-limit: 10
