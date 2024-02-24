@@ -1,0 +1,32 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "pipeline": {
+    "build": {
+      "outputs": [".next/**", "!.next/cache/**"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "lint:js": {
+      "cache": false,
+      "outputs": [".eslintjscache"]
+    },
+    "lint:css": {
+      "cache": false,
+      "outputs": [".stylelintcache"]
+    },
+    "prettier": {
+      "cache": false,
+      "outputs": [".prettiercache"]
+    },
+    "prettier:check": {
+      "cache": false,
+      "outputs": [".prettiercache"]
+    },
+    "format": {
+      "cache": false,
+      "outputs": [".eslintjscache", ".stylelintcache", ".prettiercache"]
+    }
+  }
+}

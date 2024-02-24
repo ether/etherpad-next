@@ -1,0 +1,49 @@
+{
+  "name": "etherpad-next",
+  "description": "Rewrite of Etherpad using NextJS",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbo",
+    "build": "next build",
+    "start": "next start",
+    "lint:js": "next lint --cache-strategy=content --cache-location=.eslintjscache",
+    "lint:css": "stylelint \"**/*.css\" --cache --cache-strategy=content --cache-location=.stylelintcache",
+    "prettier": "prettier --write . --cache --cache-strategy=content --cache-location=.prettiercache",
+    "prettier:check": "prettier --check . --cache --cache-strategy=content --cache-location=.prettiercache",
+    "type-check": "tsc --noEmit",
+    "format": "npm run lint:js -- --fix && npm run lint:css -- --fix && npm run prettier",
+    "storybook": "BUILD_ENV=storybook  storybook dev -p 6006 --quiet --no-open",
+    "storybook:build": "BUILD_ENV=storybook  storybook build"
+  },
+  "dependencies": {
+    "@heroicons/react": "^2.1.1",
+    "classnames": "~2.5.1",
+    "next": "~14.1.0",
+    "react": "~18.2.0",
+    "react-dom": "~18.2.0"
+  },
+  "devDependencies": {
+    "@storybook/addon-essentials": "~7.6.12",
+    "@storybook/addon-interactions": "~7.6.12",
+    "@storybook/addon-links": "~7.6.12",
+    "@storybook/addon-themes": "~7.6.12",
+    "@storybook/nextjs": "~7.6.12",
+    "@storybook/react": "~7.6.10",
+    "@types/node": "~20.11.15",
+    "@types/react": "~18.2.51",
+    "@types/react-dom": "~18.2.18",
+    "autoprefixer": "~10.4.16",
+    "eslint": "~8.56.0",
+    "eslint-config-next": "~14.1.0",
+    "postcss": "~8.4.33",
+    "prettier": "~3.2.4",
+    "prettier-plugin-tailwindcss": "~0.5.11",
+    "storybook": "~7.6.12",
+    "stylelint-config-standard": "~36.0.0",
+    "stylelint-order": "~6.0.4",
+    "stylelint-selector-bem-pattern": "~3.0.1",
+    "tailwindcss": "~3.4.1",
+    "typescript": "~5.3.3"
+  }
+}

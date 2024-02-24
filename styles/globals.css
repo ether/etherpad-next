@@ -1,0 +1,23 @@
+/* IDE Support
+ * We recommend Stylelint and Tailwind Extensions for better IDE support.
+ * @see https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss
+ * @see https://marketplace.visualstudio.com/items?itemName=stylelint.vscode-stylelint
+*/
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@tailwind variants;
+
+html {
+  @apply scroll-smooth;
+}
+
+body {
+  @apply h-screen
+    w-screen
+    bg-gray-100
+    text-gray-900
+    dark:bg-gray-900
+    dark:text-gray-100;
+}
