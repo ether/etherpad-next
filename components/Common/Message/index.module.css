@@ -1,8 +1,8 @@
 .message {
-  @apply px-4
-    py-2
+  @apply w-fit
     rounded-lg
-    w-fit;
+    px-4
+    py-2;
 }
 
 .sended {
@@ -12,7 +12,7 @@
 
 .received {
   @apply bg-ether-200
-    dark:bg-ether-600
+    dark:bg-ether-600;
 }
 
 .haveMessageTop {
