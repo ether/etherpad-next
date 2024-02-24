@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbo",
+    "dev": "cross-env TURBOPACK=1 NODE_ENV=development tsx watch server.ts",
     "build": "next build",
     "start": "next start",
     "lint:js": "next lint --cache-strategy=content --cache-location=.eslintjscache",
@@ -21,7 +21,10 @@
     "classnames": "~2.5.1",
     "next": "~14.1.0",
     "react": "~18.2.0",
-    "react-dom": "~18.2.0"
+    "react-dom": "~18.2.0",
+    "socket.io": "~4.7.4",
+    "socket.io-client": "~4.7.4",
+    "tsx": "~4.7.1"
   },
   "devDependencies": {
     "@storybook/addon-essentials": "~7.6.17",
@@ -34,6 +37,7 @@
     "@types/react": "~18.2.58",
     "@types/react-dom": "~18.2.19",
     "autoprefixer": "~10.4.16",
+    "cross-env": "^7.0.3",
     "eslint": "~8.57.0",
     "eslint-config-next": "~14.1.0",
     "postcss": "~8.4.35",
