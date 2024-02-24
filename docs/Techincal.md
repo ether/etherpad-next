@@ -1,6 +1,6 @@
 # Technical Documentation
 
-This documenation is for Etherpad-next collaborator.
+This documentation is for Etherpad-next collaborator.
 
 ## Technologies Used
 
