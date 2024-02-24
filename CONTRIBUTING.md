@@ -63,19 +63,19 @@ for getting things done and landing your contribution.
    npx turbo format
    ```
 
-10. Once you're happy with your changes, add and commit them to your branch, then push the branch to your fork.
+9. Once you're happy with your changes, add and commit them to your branch, then push the branch to your fork.
 
-    ```bash
-    cd ~/ehtherpad-next
-    git add .
-    git commit -m "some message"
-    git push -u origin name-of-your-branch
-    ```
+   ```bash
+   cd ~/ehtherpad-next
+   git add .
+   git commit -m "some message"
+   git push -u origin name-of-your-branch
+   ```
 
-    > [!IMPORTANT]\
-    > Before committing and opening a Pull Request, please go first through our [Commit](#commit-guidelines) and [Pull Request](#pull-request-policy) guidelines outlined below.
+   > [!IMPORTANT]\
+   > Before committing and opening a Pull Request, please go first through our [Commit](#commit-guidelines) and [Pull Request](#pull-request-policy) guidelines outlined below.
 
-11. Create a Pull Request.
+10. Create a Pull Request.
 
 ## Commit Guidelines
 
