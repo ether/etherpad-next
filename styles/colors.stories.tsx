@@ -14,7 +14,6 @@ export const Colors: StoryObj = {
           <div className="h-20 w-20 bg-ether-800" />
           <div className="h-20 w-20 bg-ether-900" />
         </div>
-
       </div>
     </div>
   ),
