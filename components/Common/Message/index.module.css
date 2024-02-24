@@ -1,0 +1,24 @@
+.message {
+  @apply px-4
+    py-2
+    rounded-lg
+    w-fit;
+}
+
+.sended {
+  @apply bg-ether-500
+    text-white;
+}
+
+.received {
+  @apply bg-ether-200
+    dark:bg-ether-600
+}
+
+.haveMessageTop {
+  @apply rounded-t-none;
+}
+
+.haveMessageBottom {
+  @apply rounded-b-none;
+}
