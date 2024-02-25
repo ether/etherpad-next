@@ -3,37 +3,39 @@ export type SettingsObj = {
   settingsFilename: string;
   credentialsFilename: string;
   title: string;
-  favicon: string|null;
-  skinName: string|null;
+  favicon: string | null;
+  skinName: string | null;
   skinVariants: string;
   ip: string;
-  port: string|number,
-  suppressErrorsInPadText: boolean,
-  ssl:false|{
-    key: string;
-    cert: string;
-    ca: string[];
-  },
+  port: string | number;
+  suppressErrorsInPadText: boolean;
+  ssl:
+    | false
+    | {
+        key: string;
+        cert: string;
+        ca: string[];
+      };
   socketTransportProtocols: string[];
   socketIo: {
     maxHttpBufferSize: number;
-  },
+  };
   dbType: string;
-  dbSettings: any,
-  defaultPadText: string,
-  padOptions:{
+  dbSettings: any;
+  defaultPadText: string;
+  padOptions: {
     noColors: boolean;
     showControls: boolean;
     showChat: boolean;
     showLineNumbers: boolean;
     useMonospaceFont: boolean;
-    userName: string|null;
-    userColor: string|null;
+    userName: string | null;
+    userColor: string | null;
     rtl: boolean;
     alwaysShowChat: boolean;
     chatAndUsers: boolean;
-    lang: string|null;
-  },
+    lang: string | null;
+  };
   padShortcutEnabled: {
     altF9: boolean;
     altC: boolean;
@@ -57,18 +59,18 @@ export type SettingsObj = {
     ctrlHome: boolean;
     pageUp: boolean;
     pageDown: boolean;
-  },
+  };
   toolbar: {
     left: string[][];
     right: string[][];
     timeslider: string[][];
-  },
+  };
   requireSession: boolean;
   editOnly: boolean;
   maxAge: number;
   minify: boolean;
-  abiword: string|null;
-  soffice: string|null;
+  abiword: string | null;
+  soffice: string | null;
   allowUnknownFileEnds: boolean;
   loglevel: string;
   disableIPlogging: boolean;
@@ -77,48 +79,50 @@ export type SettingsObj = {
   dumpOnUncleanExit: boolean;
   indentationOnNewLine: boolean;
   logconfig: any;
-  sessionKey:string|null|string[],
+  sessionKey: string | null | string[];
   trustProxy: boolean;
-  cookie:{
+  cookie: {
     keyRotationInterval: number;
     sameSite: string;
     sessionLifetime: number;
     sessionRefreshInterval: number;
-  },
+  };
   requireAuthentication: boolean;
   requireAuthorization: boolean;
-  users: object,
+  users: object;
   showSettingsInAdminPage: boolean;
-  scrollWhenFocusLineIsOutOfViewport:{
+  scrollWhenFocusLineIsOutOfViewport: {
     percentage: {
       editionAboveViewport: number;
       editionBelowViewport: number;
-    },
+    };
     duration: number;
-    percentageToScrollWhenUserPressesArrowUp: number,
-    scrollWhenCaretIsInTheLastLineOfViewport: boolean
-  },
+    percentageToScrollWhenUserPressesArrowUp: number;
+    scrollWhenCaretIsInTheLastLineOfViewport: boolean;
+  };
   exposeVersion: boolean;
-  customLocaleStrings: {},
+  customLocaleStrings: {};
   importExportRateLimiting: {
     windowMs: number;
     max: number;
-  },
+  };
   commitRateLimiting: {
     duration: number;
     points: number;
-  },
+  };
   importMaxFileSize: number;
   enableAdminUITests: boolean;
   lowerCasePadIds: boolean;
-  getEpVersion: ()=>string;
-  abiwordAvailable: ()=>string;
-  sofficeAvailable: ()=>string;
-  exportAvailable: ()=>string;
-  getGitCommit: ()=>string;
-  storeSettings: (newSettings: SettingsObj)=>void;
-  coerceValue: (stringVal: string)=> string | number | boolean | null | undefined;
-  lookupEnvironmentVariables: (settings: SettingsObj)=>SettingsObj;
+  getEpVersion: () => string;
+  abiwordAvailable: () => string;
+  sofficeAvailable: () => string;
+  exportAvailable: () => string;
+  getGitCommit: () => string;
+  storeSettings: (newSettings: SettingsObj) => void;
+  coerceValue: (
+    stringVal: string
+  ) => string | number | boolean | null | undefined;
+  lookupEnvironmentVariables: (settings: SettingsObj) => SettingsObj;
   parseSettings: (settingsFilename: string, isSettings: boolean) => any;
-  reloadSettings: ()=>SettingsObj;
-}
+  reloadSettings: () => SettingsObj;
+};

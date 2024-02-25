@@ -4,25 +4,33 @@ const assert = require('assert').strict;
 import settingsMod from '../../backend/utils/Setting';
 import path from 'path';
 import process from 'process';
-import {describe, it, beforeEach} from 'vitest';
+import { describe, it, beforeEach } from 'vitest';
 
 describe(__filename, function () {
   describe('parseSettings', function () {
-    let settings:any;
+    let settings: any;
     const envVarSubstTestCases = [
-      {name: 'true', val: 'true', var: 'SET_VAR_TRUE', want: true},
-      {name: 'false', val: 'false', var: 'SET_VAR_FALSE', want: false},
-      {name: 'null', val: 'null', var: 'SET_VAR_NULL', want: null},
-      {name: 'undefined', val: 'undefined', var: 'SET_VAR_UNDEFINED', want: undefined},
-      {name: 'number', val: '123', var: 'SET_VAR_NUMBER', want: 123},
-      {name: 'string', val: 'foo', var: 'SET_VAR_STRING', want: 'foo'},
-      {name: 'empty string', val: '', var: 'SET_VAR_EMPTY_STRING', want: ''},
+      { name: 'true', val: 'true', var: 'SET_VAR_TRUE', want: true },
+      { name: 'false', val: 'false', var: 'SET_VAR_FALSE', want: false },
+      { name: 'null', val: 'null', var: 'SET_VAR_NULL', want: null },
+      {
+        name: 'undefined',
+        val: 'undefined',
+        var: 'SET_VAR_UNDEFINED',
+        want: undefined,
+      },
+      { name: 'number', val: '123', var: 'SET_VAR_NUMBER', want: 123 },
+      { name: 'string', val: 'foo', var: 'SET_VAR_STRING', want: 'foo' },
+      { name: 'empty string', val: '', var: 'SET_VAR_EMPTY_STRING', want: '' },
     ];
 
     beforeEach(async function () {
       for (const tc of envVarSubstTestCases) process.env[tc.var] = tc.val;
       delete process.env.UNSET_VAR;
-      settings = settingsMod.parseSettings(path.join(__dirname, 'settings.json'), true);
+      settings = settingsMod.parseSettings(
+        path.join(__dirname, 'settings.json'),
+        true
+      );
       assert(settings != null);
     });
 

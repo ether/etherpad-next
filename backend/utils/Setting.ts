@@ -31,28 +31,25 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import log4js from 'log4js';
-import {SettingsObj} from '@/types/SettingsObject';
+import { SettingsObj } from '@/types/SettingsObject';
 import { findEtherpadRoot, makeAbsolute } from './AbsolutePaths';
-import {argvP} from './CLI';
-const suppressDisableMsg = ' -- To suppress these warning messages change ' +
+import { argvP } from './CLI';
+const suppressDisableMsg =
+  ' -- To suppress these warning messages change ' +
   'suppressErrorsInPadText to true in your settings.json\n';
 import minify from './minify';
 const logger = log4js.getLogger('settings');
 
 // Exported values that settings.json and credentials.json cannot override.
-const nonSettings = [
-  'credentialsFilename',
-  'settingsFilename',
-];
-
+const nonSettings = ['credentialsFilename', 'settingsFilename'];
 
 // This is a function to make it easy to create a new instance. It is important to not reuse a
 // config object after passing it to log4js.configure() because that method mutates the object. :(
 const defaultLogConfig = (level: string) => ({
-  appenders: {console: {type: 'console'}},
+  appenders: { console: { type: 'console' } },
   categories: {
-    default: {appenders: ['console'], level},
-  }
+    default: { appenders: ['console'], level },
+  },
 });
 const defaultLogLevel = 'INFO';
 
@@ -71,7 +68,6 @@ const initLogging = (config: any) => {
 // Initialize logging as early as possible with reasonable defaults. Logging will be re-initialized
 // with the user's chosen log level and logger config after the settings have been loaded.
 initLogging(defaultLogConfig(defaultLogLevel));
-
 
 const root = findEtherpadRoot();
 export const settings: SettingsObj = {
@@ -132,14 +128,14 @@ export const settings: SettingsObj = {
     maxHttpBufferSize: 10000,
   },
   /*
- * The Type of the database
- */
+   * The Type of the database
+   */
   dbType: 'dirty',
   /**
    * This setting is passed with dbType to ueberDB to set up the database
    */
   dbSettings: {
-    filename: path.join(root, 'var/dirty.db')
+    filename: path.join(root, 'var/dirty.db'),
   },
   /**
    * The default Text of a new pad
@@ -148,9 +144,10 @@ export const settings: SettingsObj = {
     'Welcome to Etherpad!',
     '',
     'This pad text is synchronized as you type, so that everyone viewing this page sees the same ' +
-    'text. This allows you to collaborate seamlessly on documents!',
+      'text. This allows you to collaborate seamlessly on documents!',
     '',
-    'Etherpad on Github: https://github.com/ether/etherpad-lite',].join('\n'),
+    'Etherpad on Github: https://github.com/ether/etherpad-lite',
+  ].join('\n'),
   padOptions: {
     noColors: false,
     showControls: true,
@@ -167,7 +164,6 @@ export const settings: SettingsObj = {
      */
     lang: null,
   },
-
 
   /**
    * Whether certain shortcut keys are enabled for a user in the pad
@@ -269,16 +265,16 @@ export const settings: SettingsObj = {
   indentationOnNewLine: true,
   logconfig: null,
   /*
- * Deprecated cookie signing key.
- */
+   * Deprecated cookie signing key.
+   */
   sessionKey: null,
   /*
    * Trust Proxy, whether trust the x-forwarded-for header.
-  */
+   */
   trustProxy: false,
   /*
    * Settings controlling the session cookie issued by Etherpad.
-  */
+   */
   cookie: {
     keyRotationInterval: 24 * 60 * 60 * 1000,
     /*
@@ -310,13 +306,13 @@ export const settings: SettingsObj = {
    */
   showSettingsInAdminPage: true,
   /*
- * By default, when caret is moved out of viewport, it scrolls the minimum
- * height needed to make this line visible.
- */
+   * By default, when caret is moved out of viewport, it scrolls the minimum
+   * height needed to make this line visible.
+   */
   scrollWhenFocusLineIsOutOfViewport: {
     /*
-   * Percentage of viewport height to be additionally scrolled.
-   */
+     * Percentage of viewport height to be additionally scrolled.
+     */
     percentage: {
       editionAboveViewport: 0,
       editionBelowViewport: 0,
@@ -341,24 +337,24 @@ export const settings: SettingsObj = {
     scrollWhenCaretIsInTheLastLineOfViewport: false,
   },
   /*
-  * Expose Etherpad version in the web interface and in the Server http header.
-  *
-  * Do not enable on production machines.
-  */
+   * Expose Etherpad version in the web interface and in the Server http header.
+   *
+   * Do not enable on production machines.
+   */
   exposeVersion: false,
   /*
    * Override any strings found in locale directories
    */
   customLocaleStrings: {},
   /*
- * From Etherpad 1.8.3 onwards, import and export of pads is always rate
- * limited.
- *
- * The default is to allow at most 10 requests per IP in a 90 seconds window.
- * After that the import/export request is rejected.
- *
- * See https://github.com/nfriedly/express-rate-limit for more options
- */
+   * From Etherpad 1.8.3 onwards, import and export of pads is always rate
+   * limited.
+   *
+   * The default is to allow at most 10 requests per IP in a 90 seconds window.
+   * After that the import/export request is rejected.
+   *
+   * See https://github.com/nfriedly/express-rate-limit for more options
+   */
 
   importExportRateLimiting: {
     // duration of the rate limit window (milliseconds)
@@ -368,13 +364,13 @@ export const settings: SettingsObj = {
     max: 10,
   },
   /*
- * From Etherpad 1.9.0 onwards, commits from individual users are rate limited
- *
- * The default is to allow at most 10 changes per IP in a 1 second window.
- * After that the change is rejected.
- *
- * See https://github.com/animir/node-rate-limiter-flexible/wiki/Overall-example#websocket-single-connection-prevent-flooding for more options
- */
+   * From Etherpad 1.9.0 onwards, commits from individual users are rate limited
+   *
+   * The default is to allow at most 10 changes per IP in a 1 second window.
+   * After that the change is rejected.
+   *
+   * See https://github.com/animir/node-rate-limiter-flexible/wiki/Overall-example#websocket-single-connection-prevent-flooding for more options
+   */
   commitRateLimiting: {
     // duration of the rate limit window (seconds)
     duration: 1,
@@ -383,23 +379,23 @@ export const settings: SettingsObj = {
     points: 10,
   },
   /*
- * From Etherpad 1.8.3 onwards, the maximum allowed size for a single imported
- * file is always bounded.
- *
- * File size is specified in bytes. Default is 50 MB.
- */
+   * From Etherpad 1.8.3 onwards, the maximum allowed size for a single imported
+   * file is always bounded.
+   *
+   * File size is specified in bytes. Default is 50 MB.
+   */
   importMaxFileSize: 50 * 1024 * 1024,
   /*
    * Disable Admin UI tests
    */
   enableAdminUITests: false,
   /*
-  * Enable auto conversion of pad Ids to lowercase.
-  * e.g. /p/EtHeRpAd to /p/etherpad
-  */
+   * Enable auto conversion of pad Ids to lowercase.
+   * e.g. /p/EtHeRpAd to /p/etherpad
+   */
   lowerCasePadIds: false,
   // Return etherpad version from package.json
-  getEpVersion:()=>require('../../package.json').version,
+  getEpVersion: () => require('../../package.json').version,
   // checks if abiword is avaiable
   abiwordAvailable: () => {
     if (settings.abiword != null) {
@@ -421,8 +417,10 @@ export const settings: SettingsObj = {
 
     if (abiword === 'no' && soffice === 'no') {
       return 'no';
-    } else if ((abiword === 'withoutPDF' && soffice === 'no') ||
-      (abiword === 'no' && soffice === 'withoutPDF')) {
+    } else if (
+      (abiword === 'withoutPDF' && soffice === 'no') ||
+      (abiword === 'no' && soffice === 'withoutPDF')
+    ) {
       return 'withoutPDF';
     } else {
       return 'yes';
@@ -475,10 +473,14 @@ export const settings: SettingsObj = {
       // or it's a settings hash, specific to a plugin
       // @ts-ignore
       if (settings[i] !== undefined || i.indexOf('ep_') === 0) {
-        // @ts-ignore
-        if (typeof settingsObj[i] == "object" && !Array.isArray(settingsObj[i])) {
+        if (
           // @ts-ignore
-          if (settingsObj[i] !== undefined|| settingsObj[i] !== null) {
+        typeof settingsObj[i] == 'object' &&
+          // @ts-ignore
+          !Array.isArray(settingsObj[i])
+        ) {
+          // @ts-ignore
+          if (settingsObj[i] !== undefined || settingsObj[i] !== null) {
             // @ts-ignore
             settings[i] = settingsObj[i];
           }
@@ -488,26 +490,29 @@ export const settings: SettingsObj = {
         }
       } else {
         // this setting is unknown, output a warning and throw it away
-        logger.warn(`Unknown Setting: '${i}'. This setting doesn't exist or it was removed`);
+        logger.warn(
+          `Unknown Setting: '${i}'. This setting doesn't exist or it was removed`
+        );
       }
     }
   },
   /*
-* If stringValue is a numeric string, or its value is "true" or "false", coerce
-* them to appropriate JS types. Otherwise return stringValue as-is.
-*
-* Please note that this function is used for converting types for default
-* values in the settings file (for example: "${PORT:9001}"), and that there is
-* no coercition for "null" values.
-*
-* If the user wants a variable to be null by default, he'll have to use the
-* short syntax "${ABIWORD}", and not "${ABIWORD:null}": the latter would result
-* in the literal string "null", instead.
-* */
+   * If stringValue is a numeric string, or its value is "true" or "false", coerce
+   * them to appropriate JS types. Otherwise return stringValue as-is.
+   *
+   * Please note that this function is used for converting types for default
+   * values in the settings file (for example: "${PORT:9001}"), and that there is
+   * no coercition for "null" values.
+   *
+   * If the user wants a variable to be null by default, he'll have to use the
+   * short syntax "${ABIWORD}", and not "${ABIWORD:null}": the latter would result
+   * in the literal string "null", instead.
+   * */
   coerceValue: (stringValue: string) => {
     // cooked from https://stackoverflow.com/questions/175739/built-in-way-in-javascript-to-check-if-a-string-is-a-valid-number
-    // @ts-ignore
-    const isNumeric = !isNaN(stringValue) && !isNaN(parseFloat(stringValue) && isFinite(stringValue));
+    const isNumeric =
+      !isNaN(Number(stringValue)) &&
+      !isNaN(parseFloat(stringValue)) && isFinite(Number(stringValue));
 
     if (isNumeric) {
       // detected numeric string. Coerce to a number
@@ -528,10 +533,6 @@ export const settings: SettingsObj = {
         return stringValue;
     }
   },
-
-
-
-
 
   /**
    * Takes a javascript object containing Etherpad's configuration, and returns
@@ -569,7 +570,7 @@ export const settings: SettingsObj = {
    *
    * see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#The_replacer_parameter
    */
-lookupEnvironmentVariables: (obj: object) => {
+  lookupEnvironmentVariables: (obj: object) => {
     const stringifiedAndReplaced = JSON.stringify(obj, (key, value) => {
       /*
        * the first invocation of replacer() is with an empty key. Just go on, or
@@ -612,11 +613,13 @@ lookupEnvironmentVariables: (obj: object) => {
       const envVarValue = process.env[envVarName];
       const defaultValue = match[3];
 
-      if ((envVarValue === undefined) && (defaultValue === undefined)) {
-        logger.warn(`Environment variable "${envVarName}" does not contain any value for ` +
-          `configuration key "${key}", and no default was given. Using null. ` +
-          'THIS BEHAVIOR MAY CHANGE IN A FUTURE VERSION OF ETHERPAD; you should ' +
-          'explicitly use "null" as the default if you want to continue to use null.');
+      if (envVarValue === undefined && defaultValue === undefined) {
+        logger.warn(
+          `Environment variable "${envVarName}" does not contain any value for ` +
+            `configuration key "${key}", and no default was given. Using null. ` +
+            'THIS BEHAVIOR MAY CHANGE IN A FUTURE VERSION OF ETHERPAD; you should ' +
+            'explicitly use "null" as the default if you want to continue to use null.'
+        );
 
         /*
          * We have to return null, because if we just returned undefined, the
@@ -625,9 +628,11 @@ lookupEnvironmentVariables: (obj: object) => {
         return null;
       }
 
-      if ((envVarValue === undefined) && (defaultValue !== undefined)) {
-        logger.debug(`Environment variable "${envVarName}" not found for ` +
-          `configuration key "${key}". Falling back to default value.`);
+      if (envVarValue === undefined && defaultValue !== undefined) {
+        logger.debug(
+          `Environment variable "${envVarName}" not found for ` +
+            `configuration key "${key}". Falling back to default value.`
+        );
 
         return settings.coerceValue(defaultValue);
       }
@@ -639,14 +644,14 @@ lookupEnvironmentVariables: (obj: object) => {
        * returning it, in order to maintain backward compatibility.
        */
       logger.debug(
-        `Configuration key "${key}" will be read from environment variable "${envVarName}"`);
+        `Configuration key "${key}" will be read from environment variable "${envVarName}"`
+      );
 
       return settings.coerceValue(envVarValue!);
     });
 
     return JSON.parse(stringifiedAndReplaced);
   },
-
 
   /**
    * - reads the JSON configuration file settingsFilename from disk
@@ -675,7 +680,9 @@ lookupEnvironmentVariables: (obj: object) => {
       // read the settings file
       settingsStr = fs.readFileSync(settingsFilename).toString();
     } catch (e) {
-      notFoundFunction(`No ${settingsType} file found in ${settingsFilename}. ${notFoundMessage}`);
+      notFoundFunction(
+        `No ${settingsType} file found in ${settingsFilename}. ${notFoundMessage}`
+      );
 
       // or maybe undefined!
       return null;
@@ -690,38 +697,49 @@ lookupEnvironmentVariables: (obj: object) => {
 
       return settings.lookupEnvironmentVariables(settingsParsed);
     } catch (e: any) {
-      logger.error(`There was an error processing your ${settingsType} ` +
-        `file from ${settingsFilename}: ${e.message}`);
+      logger.error(
+        `There was an error processing your ${settingsType} ` +
+          `file from ${settingsFilename}: ${e.message}`
+      );
 
       process.exit(1);
     }
   },
-  reloadSettings:() => {
-    const settingsParsed = settings.parseSettings(settings.settingsFilename, true);
-    const credentials = settings.parseSettings(settings.credentialsFilename, false);
+  reloadSettings: () => {
+    const settingsParsed = settings.parseSettings(
+      settings.settingsFilename,
+      true
+    );
+    const credentials = settings.parseSettings(
+      settings.credentialsFilename,
+      false
+    );
     settings.storeSettings(settingsParsed);
     settings.storeSettings(credentials);
 
     // Init logging config
-    settings.logconfig = defaultLogConfig(settings.loglevel ? settings.loglevel : defaultLogLevel);
+    settings.logconfig = defaultLogConfig(
+      settings.loglevel ? settings.loglevel : defaultLogLevel
+    );
     initLogging(settings.logconfig);
 
     if (settings.abiword) {
       // Check abiword actually exists
-        fs.stat(settings.abiword, (doesNotExist) => {
-          if (doesNotExist) {
-            const abiwordError = 'Abiword does not exist at this path, check your settings file.';
-            if (!settings.suppressErrorsInPadText) {
-              settings.defaultPadText += `\nError: ${abiwordError}${suppressDisableMsg}`;
-            }
-            logger.error(`${abiwordError} File location: ${settings.abiword}`);
-            settings.abiword = null;
+      fs.stat(settings.abiword, doesNotExist => {
+        if (doesNotExist) {
+          const abiwordError =
+            'Abiword does not exist at this path, check your settings file.';
+          if (!settings.suppressErrorsInPadText) {
+            settings.defaultPadText += `\nError: ${abiwordError}${suppressDisableMsg}`;
           }
-        });
+          logger.error(`${abiwordError} File location: ${settings.abiword}`);
+          settings.abiword = null;
+        }
+      });
     }
 
     if (settings.soffice) {
-      fs.stat(settings.soffice, (doesNotExist) => {
+      fs.stat(settings.soffice, doesNotExist => {
         if (doesNotExist) {
           const sofficeError =
             'soffice (libreoffice) does not exist at this path, check your settings file.';
@@ -736,27 +754,33 @@ lookupEnvironmentVariables: (obj: object) => {
     }
 
     if (settings.dbType === 'dirty') {
-      const dirtyWarning = 'DirtyDB is used. This is not recommended for production.';
+      const dirtyWarning =
+        'DirtyDB is used. This is not recommended for production.';
       if (!settings.suppressErrorsInPadText) {
         settings.defaultPadText += `\nWarning: ${dirtyWarning}${suppressDisableMsg}`;
       }
 
       settings.dbSettings.filename = makeAbsolute(settings.dbSettings.filename);
-      logger.warn(`${dirtyWarning} File location: ${settings.dbSettings.filename}`);
+      logger.warn(
+        `${dirtyWarning} File location: ${settings.dbSettings.filename}`
+      );
     }
 
     if (settings.ip === '') {
       // using Unix socket for connectivity
-      logger.warn('The settings file contains an empty string ("") for the "ip" parameter. The ' +
-        '"port" parameter will be interpreted as the path to a Unix socket to bind at.');
+      logger.warn(
+        'The settings file contains an empty string ("") for the "ip" parameter. The ' +
+          '"port" parameter will be interpreted as the path to a Unix socket to bind at.'
+      );
     }
     return settings;
-  }
+  },
 };
 
 /* Root path of the installation */
-logger.info('All relative paths will be interpreted relative to the identified ' +
-  `Etherpad base dir: ${root}`);
-
+logger.info(
+  'All relative paths will be interpreted relative to the identified ' +
+    `Etherpad base dir: ${root}`
+);
 
 export default settings;

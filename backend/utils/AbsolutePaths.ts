@@ -1,6 +1,6 @@
 import path from 'path';
 
-let etherpadRoot: string|null = null;
+let etherpadRoot: string | null = null;
 import findRoot from 'find-root';
 import log4js from 'log4js';
 const absPathLogger = log4js.getLogger('AbsolutePaths');
@@ -12,10 +12,8 @@ export const findEtherpadRoot = () => {
 
   const foundRoot = findRoot(__dirname);
 
-
   return foundRoot;
 };
-
 
 export const makeAbsolute = (somePath: string) => {
   if (path.isAbsolute(somePath)) {
@@ -24,7 +22,9 @@ export const makeAbsolute = (somePath: string) => {
 
   const rewrittenPath = path.join(findEtherpadRoot(), somePath);
 
-  absPathLogger.debug(`Relative path "${somePath}" can be rewritten to "${rewrittenPath}"`);
+  absPathLogger.debug(
+    `Relative path "${somePath}" can be rewritten to "${rewrittenPath}"`
+  );
   return rewrittenPath;
 };
 

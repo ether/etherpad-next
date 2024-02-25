@@ -5,13 +5,11 @@ type Argv = {
   apikey?: string;
 };
 
-
-export const argvP:Argv = {
-
-};
+export const argvP: Argv = {};
 
 const argv = process.argv.slice(2);
-let arg, prevArg = '';
+let arg,
+  prevArg = '';
 
 // Loop through args
 for (let i = 0; i < argv.length; i++) {

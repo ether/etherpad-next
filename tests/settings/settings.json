@@ -5,13 +5,11 @@
 {
   "trailing commas": {
     "lists": {
-      "multiple lines": [
-        "",
-      ]
+      "multiple lines": [""]
     },
     "objects": {
       "multiple lines": {
-        "key": "",
+        "key": ""
       }
     }
   },

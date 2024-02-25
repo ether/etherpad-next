@@ -34,6 +34,8 @@ app.prepare().then(() => {
   });
 
   server.listen(settingsLoaded.port, () => {
-    console.log(`> Ready on ${settingsLoaded.ssl?'https':'http'}://${hostname}:${settingsLoaded.port}`);
+    console.log(
+      `> Ready on ${settingsLoaded.ssl ? 'https' : 'http'}://${hostname}:${settingsLoaded.port}`
+    );
   });
 });
