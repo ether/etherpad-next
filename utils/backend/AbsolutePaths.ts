@@ -1,5 +1,4 @@
 import path from 'node:path';
-import findRoot from 'find-root';
 
 let etherpadRoot: string | null = null;
 
@@ -8,7 +7,7 @@ export const findEtherpadRoot = () => {
     return etherpadRoot;
   }
 
-  return findRoot(__dirname);
+  return process.cwd();
 };
 
 export const makeAbsolute = (somePath: string) => {

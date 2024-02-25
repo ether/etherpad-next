@@ -20,7 +20,6 @@
   "dependencies": {
     "@heroicons/react": "~2.1.1",
     "classnames": "~2.5.1",
-    "find-root": "~1.1.0",
     "next": "~14.1.0",
     "pino": "~8.19.0",
     "pino-pretty": "~10.3.1",
