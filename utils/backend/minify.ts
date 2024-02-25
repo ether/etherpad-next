@@ -1,4 +1,3 @@
-
 // This method transforms the settings json with its comments to guide users
 // what a particular setting means to a clean json without comments.
 const minify = (json: string) => {

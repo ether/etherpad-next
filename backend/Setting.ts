@@ -1,57 +1,26 @@
-'use strict';
-/**
- * The Settings module reads the settings out of settings.json and provides
- * this information to the other modules
- *
- * TODO muxator 2020-04-14:
- *
- * 1) get rid of the reloadSettings() call at module loading;
- * 2) provide a factory method that configures the settings module at runtime,
- *    reading the file name either from command line parameters, from a function
- *    argument, or falling back to a default.
- */
-
-/*
- * 2011 Peter 'Pita' Martischka (Primary Technology Ltd)
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS-IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-import fs from 'fs';
-import os from 'os';
-import path from 'path';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import pinoLogger from 'pino';
 import { SettingsObj } from '@/types/SettingsObject';
 import { findEtherpadRoot, makeAbsolute } from '@/utils/backend/AbsolutePaths';
 import { argvP } from '@/utils/backend/CLI';
-const suppressDisableMsg =
-  ' -- To suppress these warning messages change ' +
-  'suppressErrorsInPadText to true in your settings.json\n';
 import minify from '@/utils/backend/minify';
+
+const suppressDisableMsg = ` -- To suppress these warning messages change suppressErrorsInPadText to true in your settings.json`;
 
 // Exported values that settings.json and credentials.json cannot override.
 const nonSettings = ['credentialsFilename', 'settingsFilename'];
 
-let logger: any|undefined = undefined;
+let logger: any | undefined;
 
 const defaultLogLevel = 'INFO';
 
 const initLogging = (level: string) => {
-
   logger = pinoLogger({
     level: level.toLowerCase(),
     transport: {
-      target: 'pino-pretty'
+      target: 'pino-pretty',
     },
   });
   // Overwrites for console output methods
@@ -136,14 +105,14 @@ export const settings: SettingsObj = {
   /**
    * The default Text of a new pad
    */
-  defaultPadText: [
-    'Welcome to Etherpad!',
-    '',
-    'This pad text is synchronized as you type, so that everyone viewing this page sees the same ' +
-      'text. This allows you to collaborate seamlessly on documents!',
-    '',
-    'Etherpad on Github: https://github.com/ether/etherpad-lite',
-  ].join('\n'),
+  defaultPadText: `
+    Welcome to Etherpad!
+
+    This pad text is synchronized as you type, so that everyone viewing this page sees the same
+    text. This allows you to collaborate seamlessly on documents!
+
+    Etherpad on Github: https://github.com/ether/etherpad-lite
+  `,
   padOptions: {
     noColors: false,
     showControls: true,
@@ -471,7 +440,7 @@ export const settings: SettingsObj = {
       if (settings[i] !== undefined || i.indexOf('ep_') === 0) {
         if (
           // @ts-ignore
-        typeof settingsObj[i] == 'object' &&
+          typeof settingsObj[i] == 'object' &&
           // @ts-ignore
           !Array.isArray(settingsObj[i])
         ) {
@@ -508,7 +477,8 @@ export const settings: SettingsObj = {
     // cooked from https://stackoverflow.com/questions/175739/built-in-way-in-javascript-to-check-if-a-string-is-a-valid-number
     const isNumeric =
       !isNaN(Number(stringValue)) &&
-      !isNaN(parseFloat(stringValue)) && isFinite(Number(stringValue));
+      !isNaN(parseFloat(stringValue)) &&
+      isFinite(Number(stringValue));
 
     if (isNumeric) {
       // detected numeric string. Coerce to a number
@@ -611,10 +581,10 @@ export const settings: SettingsObj = {
 
       if (envVarValue === undefined && defaultValue === undefined) {
         logger.warn(
-          `Environment variable "${envVarName}" does not contain any value for ` +
-            `configuration key "${key}", and no default was given. Using null. ` +
-            'THIS BEHAVIOR MAY CHANGE IN A FUTURE VERSION OF ETHERPAD; you should ' +
-            'explicitly use "null" as the default if you want to continue to use null.'
+          `Environment variable "${envVarName}" does not contain any value for
+            configuration key "${key}", and no default was given. Using null.
+            THIS BEHAVIOR MAY CHANGE IN A FUTURE VERSION OF ETHERPAD; you should
+            explicitly use "null" as the default if you want to continue to use null.`
         );
 
         /*
@@ -626,8 +596,7 @@ export const settings: SettingsObj = {
 
       if (envVarValue === undefined && defaultValue !== undefined) {
         logger.debug(
-          `Environment variable "${envVarName}" not found for ` +
-            `configuration key "${key}". Falling back to default value.`
+          `Environment variable "${envVarName}" not found for configuration key "${key}". Falling back to default value.`
         );
 
         return settings.coerceValue(defaultValue);
@@ -694,8 +663,7 @@ export const settings: SettingsObj = {
       return settings.lookupEnvironmentVariables(settingsParsed);
     } catch (e: any) {
       logger.error(
-        `There was an error processing your ${settingsType} ` +
-          `file from ${settingsFilename}: ${e.message}`
+        `There was an error processing your ${settingsType} file from ${settingsFilename}: ${e.message}`
       );
 
       process.exit(1);
@@ -721,9 +689,11 @@ export const settings: SettingsObj = {
         if (doesNotExist) {
           const abiwordError =
             'Abiword does not exist at this path, check your settings file.';
+
           if (!settings.suppressErrorsInPadText) {
             settings.defaultPadText += `\nError: ${abiwordError}${suppressDisableMsg}`;
           }
+
           logger.error(`${abiwordError} File location: ${settings.abiword}`);
           settings.abiword = null;
         }
@@ -739,6 +709,7 @@ export const settings: SettingsObj = {
           if (!settings.suppressErrorsInPadText) {
             settings.defaultPadText += `\nError: ${sofficeError}${suppressDisableMsg}`;
           }
+
           logger.error(`${sofficeError} File location: ${settings.soffice}`);
           settings.soffice = null;
         }
@@ -748,6 +719,7 @@ export const settings: SettingsObj = {
     if (settings.dbType === 'dirty') {
       const dirtyWarning =
         'DirtyDB is used. This is not recommended for production.';
+
       if (!settings.suppressErrorsInPadText) {
         settings.defaultPadText += `\nWarning: ${dirtyWarning}${suppressDisableMsg}`;
       }
@@ -761,8 +733,7 @@ export const settings: SettingsObj = {
     if (settings.ip === '') {
       // using Unix socket for connectivity
       logger.warn(
-        'The settings file contains an empty string ("") for the "ip" parameter. The ' +
-          '"port" parameter will be interpreted as the path to a Unix socket to bind at.'
+        `The settings file contains an empty string ("") for the "ip" parameter. The "port" parameter will be interpreted as the path to a Unix socket to bind at.`
       );
     }
     return settings;
@@ -771,8 +742,7 @@ export const settings: SettingsObj = {
 
 /* Root path of the installation */
 logger.info(
-  'All relative paths will be interpreted relative to the identified ' +
-    `Etherpad base dir: ${root}`
+  `All relative paths will be interpreted relative to the identified Etherpad base dir: ${root}`
 );
 
 export default settings;
