@@ -30,34 +30,30 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import log4js from 'log4js';
+import pinoLogger from 'pino';
 import { SettingsObj } from '@/types/SettingsObject';
-import { findEtherpadRoot, makeAbsolute } from './AbsolutePaths';
-import { argvP } from './CLI';
+import { findEtherpadRoot, makeAbsolute } from '@/utils/backend/AbsolutePaths';
+import { argvP } from '@/utils/backend/CLI';
 const suppressDisableMsg =
   ' -- To suppress these warning messages change ' +
   'suppressErrorsInPadText to true in your settings.json\n';
-import minify from './minify';
-const logger = log4js.getLogger('settings');
+import minify from '@/utils/backend/minify';
 
 // Exported values that settings.json and credentials.json cannot override.
 const nonSettings = ['credentialsFilename', 'settingsFilename'];
 
-// This is a function to make it easy to create a new instance. It is important to not reuse a
-// config object after passing it to log4js.configure() because that method mutates the object. :(
-const defaultLogConfig = (level: string) => ({
-  appenders: { console: { type: 'console' } },
-  categories: {
-    default: { appenders: ['console'], level },
-  },
-});
+let logger: any|undefined = undefined;
+
 const defaultLogLevel = 'INFO';
 
-const initLogging = (config: any) => {
-  // log4js.configure() modifies logconfig so check for equality first.
-  log4js.configure(config);
-  log4js.getLogger('console');
+const initLogging = (level: string) => {
 
+  logger = pinoLogger({
+    level: level.toLowerCase(),
+    transport: {
+      target: 'pino-pretty'
+    },
+  });
   // Overwrites for console output methods
   console.debug = logger.debug.bind(logger);
   console.log = logger.info.bind(logger);
@@ -67,7 +63,7 @@ const initLogging = (config: any) => {
 
 // Initialize logging as early as possible with reasonable defaults. Logging will be re-initialized
 // with the user's chosen log level and logger config after the settings have been loaded.
-initLogging(defaultLogConfig(defaultLogLevel));
+initLogging(defaultLogLevel);
 
 const root = findEtherpadRoot();
 export const settings: SettingsObj = {
@@ -717,11 +713,7 @@ export const settings: SettingsObj = {
     settings.storeSettings(settingsParsed);
     settings.storeSettings(credentials);
 
-    // Init logging config
-    settings.logconfig = defaultLogConfig(
-      settings.loglevel ? settings.loglevel : defaultLogLevel
-    );
-    initLogging(settings.logconfig);
+    initLogging(settings.loglevel);
 
     if (settings.abiword) {
       // Check abiword actually exists
