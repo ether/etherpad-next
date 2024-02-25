@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
-import settingsMod from '@/backend/Setting';
-import path from 'path';
-import process from 'process';
+import path from 'node:path';
+import process from 'node:process';
 import { describe, it, beforeEach } from 'vitest';
+import settingsMod from '@/backend/Setting';
 
 describe(__filename, function () {
   describe('parseSettings', function () {

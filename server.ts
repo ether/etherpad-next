@@ -3,6 +3,7 @@ import { parse } from 'node:url';
 import next from 'next';
 import { initSocketIO } from '@/backend/socketio';
 import settings from '@/backend/Setting';
+
 const dev = process.env.NODE_ENV !== 'production';
 const hostname = 'localhost';
 // when using middleware `hostname` and `port` must be provided below
