@@ -1,17 +1,16 @@
 import { createServer } from 'http';
 import { parse } from 'node:url';
 import next from 'next';
-import { Server } from 'socket.io';
 import { initSocketIO } from '@/backend/socketio';
-
+import settings from '@/backend/utils/Setting';
 const dev = process.env.NODE_ENV !== 'production';
 const hostname = 'localhost';
-const port = 3000;
 // when using middleware `hostname` and `port` must be provided below
 const app = next({ dev });
 const handle = app.getRequestHandler();
 
 let server: any;
+let settingsLoaded = settings.reloadSettings();
 
 app.prepare().then(() => {
   server = createServer(async (req, res) => {
@@ -34,7 +33,7 @@ app.prepare().then(() => {
     process.exit(1);
   });
 
-  server.listen(port, () => {
-    console.log(`> Ready on http://${hostname}:${port}`);
+  server.listen(settingsLoaded.port, () => {
+    console.log(`> Ready on ${settingsLoaded.ssl?'https':'http'}://${hostname}:${settingsLoaded.port}`);
   });
 });
