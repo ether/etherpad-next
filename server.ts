@@ -3,7 +3,7 @@ import { parse } from 'node:url';
 import next from 'next';
 import { initSocketIO } from '@/backend/socketio';
 import settings from '@/backend/Setting';
-
+import { initDatabase } from '@/backend/DB';
 const dev = process.env.NODE_ENV !== 'production';
 const hostname = 'localhost';
 // when using middleware `hostname` and `port` must be provided below
@@ -13,7 +13,7 @@ const handle = app.getRequestHandler();
 let server: any;
 let settingsLoaded = settings.reloadSettings();
 
-app.prepare().then(() => {
+app.prepare().then(async () => {
   server = createServer(async (req, res) => {
     try {
       // Be sure to pass `true` as the second argument to `url.parse`.
@@ -28,6 +28,7 @@ app.prepare().then(() => {
   });
 
   initSocketIO(server);
+  const db = await initDatabase();
 
   server.once('error', (err: any) => {
     console.error(err);
