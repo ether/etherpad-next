@@ -47,23 +47,22 @@
 .gradient {
   @apply bg-gradient-to-r
     from-ether-500
-    to-ether-600
+    to-ether-700
     text-white
     hover:from-ether-600
-    hover:to-ether-700
+    hover:to-ether-800
     active:from-ether-700
-    active:to-ether-800
+    active:to-ether-900
     disabled:from-ether-200
-    disabled:to-ether-300
-    disabled:text-black
+    disabled:to-ether-400
     dark:from-ether-400
-    dark:to-ether-500
+    dark:to-ether-600
     dark:text-gray-900
     dark:hover:from-ether-300
-    dark:hover:to-ether-400
+    dark:hover:to-ether-500
     dark:active:from-ether-500
-    dark:active:to-ether-600
+    dark:active:to-ether-700
     dark:disabled:from-ether-600
-    dark:disabled:to-ether-700
+    dark:disabled:to-ether-800
     dark:disabled:text-white;
 }
