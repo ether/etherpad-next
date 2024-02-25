@@ -1,7 +1,5 @@
-'use strict';
-
-const assert = require('assert').strict;
-import settingsMod from '../../backend/utils/Setting';
+import assert from 'node:assert/strict';
+import settingsMod from '@/backend/Setting';
 import path from 'path';
 import process from 'process';
 import { describe, it, beforeEach } from 'vitest';
