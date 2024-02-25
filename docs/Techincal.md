@@ -10,6 +10,7 @@ This documentation is for Etherpad-next collaborator.
 - [PostCSS][]
 - [TypeScript][]
 - [Storybook][]
+- [heroicons](https://heroicons.com)
 
 - [prettier](https://www.prettier.io)
 - [eslint](https://www.eslint.org)

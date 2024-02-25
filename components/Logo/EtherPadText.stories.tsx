@@ -4,7 +4,7 @@ import type { Meta as MetaObj, StoryObj } from '@storybook/react';
 type Story = StoryObj<typeof EtherPadText>;
 type Meta = MetaObj<typeof EtherPadText>;
 
-export const Default: Story = {
+export const Logo: Story = {
   args: {
     width: 300,
     height: 300,
