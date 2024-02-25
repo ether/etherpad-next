@@ -1,0 +1,33 @@
+.landing {
+  @apply mx-auto
+    flex
+    size-full
+    max-w-md
+    flex-col
+    justify-center
+    gap-4
+    text-center;
+
+  p {
+    @apply text-2xl
+      font-bold;
+  }
+
+  .note {
+    @apply text-sm
+      font-light
+      text-gray-500
+      dark:text-gray-400;
+  }
+
+  form {
+    @apply flex
+      w-full
+      flex-col
+      gap-4;
+
+    button {
+      @apply border-gray-950 dark:border;
+    }
+  }
+}

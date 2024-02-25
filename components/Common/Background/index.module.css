@@ -1,0 +1,23 @@
+.background {
+  @apply absolute
+  left-0
+  top-0
+  -z-10
+  size-full
+  bg-[url('/static/background.svg')]
+  bg-center
+  bg-no-repeat;
+
+  &::after {
+    @apply absolute
+      inset-0
+      m-auto
+      aspect-square
+      w-[300px]
+      rounded-full
+      bg-ether-400
+      blur-[120px]
+      content-['']
+      dark:bg-ether-700;
+  }
+}

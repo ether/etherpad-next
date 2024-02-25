@@ -2,7 +2,9 @@
 
 import { useEffect } from 'react';
 import io from 'socket.io-client';
-const Page = () => {
+import type { FC } from 'react';
+
+const Page: FC = () => {
   useEffect(() => {
     const socket = io();
     socket.on('connect', () => {

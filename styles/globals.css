@@ -9,14 +9,15 @@
 @tailwind utilities;
 @tailwind variants;
 
-html {
-  @apply scroll-smooth;
-}
-
+html,
 body {
   @apply h-screen
     w-screen
-    bg-gray-100
+    scroll-smooth;
+}
+
+body {
+  @apply bg-gray-100
     text-gray-900
     dark:bg-gray-900
     dark:text-gray-100;
