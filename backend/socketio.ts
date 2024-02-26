@@ -1,14 +1,14 @@
-import events from 'events';
+import events from 'node:events';
 import { Http2Server } from 'node:http2';
 import { Server, Socket } from 'socket.io';
 import { DefaultEventsMap } from '@socket.io/component-emitter';
 
+let io: Server<DefaultEventsMap, DefaultEventsMap> | undefined;
 const sockets = new Set();
-export const socketsEvents = new events.EventEmitter();
-
 const sessionInfos = new Map();
 
-let io: Server<DefaultEventsMap, DefaultEventsMap> | undefined;
+export const socketsEvents = new events.EventEmitter();
+
 export const initSocketIO = (server: Http2Server) => {
   io = new Server(server, { addTrailingSlash: false });
 
