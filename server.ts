@@ -4,15 +4,14 @@ import next from 'next';
 import { initSocketIO } from '@/backend/socketio';
 import  {reloadSettings} from '@/backend/Setting';
 import { initDatabase } from '@/backend/DB';
-import { createGroup } from '@/service/pads/GroupManager';
 const dev = process.env.NODE_ENV !== 'production';
 const hostname = 'localhost';
 // when using middleware `hostname` and `port` must be provided below
 const app = next({ dev });
 const handle = app.getRequestHandler();
-
+import {settings} from '@/backend/exportedVars'
 let server: any;
-let settingsLoaded = reloadSettings();
+reloadSettings();
 
 app.prepare().then(async () => {
   server = createServer(async (req, res) => {
@@ -36,9 +35,9 @@ app.prepare().then(async () => {
     process.exit(1);
   });
 
-  server.listen(settingsLoaded.port, () => {
+  server.listen(settings.port, () => {
     console.log(
-      `> Ready on ${settingsLoaded.ssl ? 'https' : 'http'}://${hostname}:${settingsLoaded.port}`
+      `> Ready on ${settings.ssl ? 'https' : 'http'}://${hostname}:${settings.port}`
     );
   });
 });
