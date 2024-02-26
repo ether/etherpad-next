@@ -9,4 +9,4 @@ The project is currently under development, so we only support this version(s) o
 | 0.1.X   | :white_check_mark: |
 
 > \[!NOTE]\
->There is no compatibility yet with etherpad-lite
+> There is no compatibility yet with etherpad-lite
