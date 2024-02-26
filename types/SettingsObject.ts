@@ -12,10 +12,10 @@ export type SettingsObj = {
   ssl:
     | false
     | {
-        key: string;
-        cert: string;
-        ca: string[];
-      };
+    key: string;
+    cert: string;
+    ca: string[];
+  };
   socketTransportProtocols: string[];
   socketIo: {
     maxHttpBufferSize: number;
@@ -113,4 +113,16 @@ export type SettingsObj = {
   importMaxFileSize: number;
   enableAdminUITests: boolean;
   lowerCasePadIds: boolean;
+  getEpVersion: () => string;
+  abiwordAvailable: () => string;
+  sofficeAvailable: () => string;
+  exportAvailable: () => string;
+  getGitCommit: () => string;
+  storeSettings: (newSettings: SettingsObj) => void;
+  coerceValue: (
+    stringVal: string
+  ) => string | number | boolean | null | undefined;
+  lookupEnvironmentVariables: (settings: SettingsObj) => SettingsObj;
+  parseSettings: (settingsFilename: string, isSettings: boolean) => any;
+  reloadSettings: () => SettingsObj;
 };

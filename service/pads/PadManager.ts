@@ -52,6 +52,12 @@ export class PadManager {
     return this._cachedList;
   }
 
+  listAllPads = async () => {
+    const padIDs = await this.getPads();
+
+    return {padIDs};
+  };
+
   addPad(name: string) {
     if (this._list.has(name)) return;
     this._list.add(name);

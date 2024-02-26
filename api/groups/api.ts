@@ -1,14 +1,43 @@
 import { fastifyServer } from '@/server';
-import { createGroup, listAllGroups, createGroupIfNotExistsFor } from '@/service/pads/GroupManager';
+import {
+  createGroup,
+  listAllGroups,
+  createGroupIfNotExistsFor,
+  deleteGroup,
+} from '@/service/pads/GroupManager';
 
-
+const basePath = '/api/groups';
 export const initGroups = ()=> {
   fastifyServer.post<{
     Querystring: {
       ifNotExists?: boolean;
       appGroupId?: string;
     }
-  }>('/api/groups', async (req, res) => {
+  }>(basePath,{
+    schema: {
+      tags: ['group'],
+      querystring: {
+        ifNotExists: { type: 'boolean' },
+        appGroupId: { type: 'string' }
+      },
+      response:{
+        200:{
+          type: 'object',
+          properties: {
+            code: { type: 'number' },
+            data: {
+              type: 'object',
+              properties: {
+                groupId: { type: 'string' }
+              }
+            },
+            message: { type: 'string' }
+          }
+        },
+
+      }
+    },
+  }, async (req, res) => {
     let groupId;
 
     const  {ifNotExists, appGroupId} = req.query;
@@ -36,15 +65,91 @@ export const initGroups = ()=> {
   });
 
 
-  fastifyServer.get('/api/groups', async (req, res) => {
-    const groupId = await listAllGroups();
+  fastifyServer.get(basePath,{
+    schema:{
+      tags: ['group'],
+      response:{
+        200: {
+          type: 'object',
+          properties: {
+            code: { type: 'number' },
+            data: {
+              type: 'object',
+              properties: {
+                groupId: {
+                  type: 'array',
+                  items: {
+                    type: 'string'
+                  },
+                },
+              },
+            },
+            message: { type: 'string' }
+          }
+        }
+      },
+      security: [
+        {
+          "apiKey": []
+        }
+      ]
+    }
+  }, async () => {
+    const {groupIDs} = await listAllGroups();
 
     return {
       code: 0,
       data: {
-        groupId
+        groupId: groupIDs
       },
       message: 'ok'
     };
+  });
+
+  fastifyServer.delete<{
+    Params: {
+      groupId: string;
+    }
+  }>(`${basePath}/:groupId`,{
+    schema:{
+      tags: ['group'],
+      params: {
+        groupId: { type: 'string' }
+      },
+      response:{
+        200:{
+          type: 'object',
+          properties: {
+            code: { type: 'number' },
+            message: { type: 'string' }
+          }
+        },
+        409:{
+          type: 'object',
+          properties: {
+            code: { type: 'number' },
+            message: { type: 'string' }
+          }
+        }
+      }
+    }
+  }, async (req, res) => {
+    const groupId = req.params.groupId;
+
+    try {
+      await deleteGroup(groupId);
+      return {
+        code: 0,
+        message: 'ok'
+      };
+    }
+    catch (e:any) {
+
+      res.statusCode = 409;
+      return {
+        code: 1,
+        message: e.message
+      };
+    }
   });
 };

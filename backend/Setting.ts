@@ -12,10 +12,11 @@ const suppressDisableMsg = ` -- To suppress these warning messages change suppre
 // Exported values that settings.json and credentials.json cannot override.
 const nonSettings = ['credentialsFilename', 'settingsFilename'];
 
-let logger: any|undefined = undefined;
+let logger: any | undefined;
 
 const defaultLogLevel = 'INFO';
-export let logConfig: { level: string; transport: { target: string; }; };
+export let logConfig :any;
+
 
 const initLogging = (level: string) => {
   logConfig = {
@@ -24,19 +25,8 @@ const initLogging = (level: string) => {
       target: 'pino-pretty',
     },
   };
-  logger = pinoLogger({
-    level: level.toLowerCase(),
-    transport: {
-      target: 'pino-pretty',
-    },
-  });
 
-  logger = pinoLogger({
-    level: level.toLowerCase(),
-    transport: {
-      target: 'pino-pretty'
-    },
-  });
+  logger = pinoLogger(logConfig);
   // Overwrites for console output methods
   console.debug = logger.debug.bind(logger);
   console.log = logger.info.bind(logger);
@@ -46,7 +36,7 @@ const initLogging = (level: string) => {
 
 // Initialize logging as early as possible with reasonable defaults. Logging will be re-initialized
 // with the user's chosen log level and logger config after the settings have been loaded.
-initLogging(settings.loglevel);
+initLogging(defaultLogLevel);
 
 const root = findEtherpadRoot();
 export const settings: SettingsObj = {
@@ -394,17 +384,17 @@ export const settings: SettingsObj = {
     const abiword = settings.abiwordAvailable();
     const soffice = settings.sofficeAvailable();
 
-  if (abiword === 'no' && soffice === 'no') {
-    return 'no';
-  } else if (
-    (abiword === 'withoutPDF' && soffice === 'no') ||
-    (abiword === 'no' && soffice === 'withoutPDF')
-  ) {
-    return 'withoutPDF';
-  } else {
-    return 'yes';
-  }
-},
+    if (abiword === 'no' && soffice === 'no') {
+      return 'no';
+    } else if (
+      (abiword === 'withoutPDF' && soffice === 'no') ||
+      (abiword === 'no' && soffice === 'withoutPDF')
+    ) {
+      return 'withoutPDF';
+    } else {
+      return 'yes';
+    }
+  },
   // Provide git version if available
   getGitCommit: () => {
     let version = '';
@@ -454,7 +444,7 @@ export const settings: SettingsObj = {
       if (settings[i] !== undefined || i.indexOf('ep_') === 0) {
         if (
           // @ts-ignore
-        typeof settingsObj[i] == 'object' &&
+          typeof settingsObj[i] == 'object' &&
           // @ts-ignore
           !Array.isArray(settingsObj[i])
         ) {
@@ -491,7 +481,8 @@ export const settings: SettingsObj = {
     // cooked from https://stackoverflow.com/questions/175739/built-in-way-in-javascript-to-check-if-a-string-is-a-valid-number
     const isNumeric =
       !isNaN(Number(stringValue)) &&
-      !isNaN(parseFloat(stringValue)) && isFinite(Number(stringValue));
+      !isNaN(parseFloat(stringValue)) &&
+      isFinite(Number(stringValue));
 
     if (isNumeric) {
       // detected numeric string. Coerce to a number
@@ -694,7 +685,7 @@ export const settings: SettingsObj = {
     settings.storeSettings(settingsParsed);
     settings.storeSettings(credentials);
 
-  initLogging(settings.loglevel);
+    initLogging(settings.loglevel);
 
     if (settings.abiword) {
       // Check abiword actually exists
@@ -759,3 +750,5 @@ logger.info(
 );
 
 export default settings;
+
+export const reloadSettings = settings.reloadSettings;
