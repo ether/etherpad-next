@@ -1,5 +1,6 @@
 .inputWrapper {
   @apply flex
+    w-full
     flex-col
     gap-1.5;
 

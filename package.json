@@ -18,10 +18,11 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@heroicons/react": "~2.1.1",
     "@radix-ui/react-avatar": "~1.0.4",
     "@radix-ui/react-select": "~2.0.0",
+    "@radix-ui/react-toast": "~1.1.5",
     "classnames": "~2.5.1",
+    "lucide-react": "~0.340.0",
     "next": "~14.1.0",
     "pino": "~8.19.0",
     "pino-pretty": "~10.3.1",
