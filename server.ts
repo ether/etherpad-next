@@ -2,8 +2,9 @@ import { createServer } from 'http';
 import { parse } from 'node:url';
 import next from 'next';
 import { initSocketIO } from '@/backend/socketio';
-import settings from '@/backend/Setting';
+import  {reloadSettings} from '@/backend/Setting';
 import { initDatabase } from '@/backend/DB';
+import { createGroup } from '@/service/pads/GroupManager';
 const dev = process.env.NODE_ENV !== 'production';
 const hostname = 'localhost';
 // when using middleware `hostname` and `port` must be provided below
@@ -11,7 +12,7 @@ const app = next({ dev });
 const handle = app.getRequestHandler();
 
 let server: any;
-let settingsLoaded = settings.reloadSettings();
+let settingsLoaded = reloadSettings();
 
 app.prepare().then(async () => {
   server = createServer(async (req, res) => {

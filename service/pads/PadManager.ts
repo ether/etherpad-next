@@ -1,7 +1,7 @@
 import { db } from '@/backend/DB';
 import CustomError from '@/utils/service/CustomError';
 import { Pad } from '@/service/pads/Pad';
-import settings from '@/backend/Setting';
+import { settings } from '@/backend/exportedVars';
 
 class GlobalPads {
   private loadedPads: Map<string, Pad>;

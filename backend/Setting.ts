@@ -12,15 +12,16 @@ const suppressDisableMsg = ` -- To suppress these warning messages change suppre
 // Exported values that settings.json and credentials.json cannot override.
 const nonSettings = ['credentialsFilename', 'settingsFilename'];
 
-let logger: any | undefined;
+let logger: any|undefined = undefined;
 
 const defaultLogLevel = 'INFO';
 
 const initLogging = (level: string) => {
+
   logger = pinoLogger({
     level: level.toLowerCase(),
     transport: {
-      target: 'pino-pretty',
+      target: 'pino-pretty'
     },
   });
   // Overwrites for console output methods
@@ -380,17 +381,17 @@ export const settings: SettingsObj = {
     const abiword = settings.abiwordAvailable();
     const soffice = settings.sofficeAvailable();
 
-    if (abiword === 'no' && soffice === 'no') {
-      return 'no';
-    } else if (
-      (abiword === 'withoutPDF' && soffice === 'no') ||
-      (abiword === 'no' && soffice === 'withoutPDF')
-    ) {
-      return 'withoutPDF';
-    } else {
-      return 'yes';
-    }
-  },
+  if (abiword === 'no' && soffice === 'no') {
+    return 'no';
+  } else if (
+    (abiword === 'withoutPDF' && soffice === 'no') ||
+    (abiword === 'no' && soffice === 'withoutPDF')
+  ) {
+    return 'withoutPDF';
+  } else {
+    return 'yes';
+  }
+},
   // Provide git version if available
   getGitCommit: () => {
     let version = '';
@@ -440,7 +441,7 @@ export const settings: SettingsObj = {
       if (settings[i] !== undefined || i.indexOf('ep_') === 0) {
         if (
           // @ts-ignore
-          typeof settingsObj[i] == 'object' &&
+        typeof settingsObj[i] == 'object' &&
           // @ts-ignore
           !Array.isArray(settingsObj[i])
         ) {
@@ -477,8 +478,7 @@ export const settings: SettingsObj = {
     // cooked from https://stackoverflow.com/questions/175739/built-in-way-in-javascript-to-check-if-a-string-is-a-valid-number
     const isNumeric =
       !isNaN(Number(stringValue)) &&
-      !isNaN(parseFloat(stringValue)) &&
-      isFinite(Number(stringValue));
+      !isNaN(parseFloat(stringValue)) && isFinite(Number(stringValue));
 
     if (isNumeric) {
       // detected numeric string. Coerce to a number

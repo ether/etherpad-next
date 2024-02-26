@@ -1,7 +1,6 @@
 import { AText } from '@/types/PadType';
-import { db } from '@/backend/DB';
+import { getDb, db } from '@/backend/DB';
 import { ChangeSet } from '@/service/pads/ChangeSet';
-import settings from '@/backend/Setting';
 import { AttributePool } from '@/service/pads/AttributePool';
 import {
   cleanText,
@@ -25,6 +24,7 @@ import { getReadOnlyId } from '@/service/pads/ReadOnlyManager';
 import { AttributeMap } from '@/service/pads/AttributeMap';
 import { doesGroupExist } from '@/service/pads/GroupManager';
 import { SmartOpAssembler } from '@/service/pads/SmartOpAssembler';
+import { settings } from '@/backend/exportedVars';
 
 
 export class Pad {
@@ -37,7 +37,7 @@ export class Pad {
   private id: string;
   private savedRevisions: any[];
 
-  constructor(id: string, database = db) {
+  constructor(id: string, database= db) {
     this.db = database;
     this.atext = ChangeSet.makeAText('\n');
     this.pool = new AttributePool();
