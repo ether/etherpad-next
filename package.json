@@ -3,6 +3,7 @@
   "description": "Rewrite of Etherpad using NextJS",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "cross-env TURBOPACK=1 NODE_ENV=development tsx watch server.ts",
     "build": "next build",
@@ -31,7 +32,8 @@
     "socket.io": "~4.7.4",
     "socket.io-client": "~4.7.4",
     "tsx": "~4.7.1",
-    "ueberdb2": "^4.2.58"
+    "ueberdb2": "^4.2.58",
+    "fastify": "^4.26.1"
   },
   "devDependencies": {
     "@storybook/addon-essentials": "~7.6.17",

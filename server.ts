@@ -2,42 +2,51 @@ import { createServer } from 'http';
 import { parse } from 'node:url';
 import next from 'next';
 import { initSocketIO } from '@/backend/socketio';
-import  {reloadSettings} from '@/backend/Setting';
+import setting, {reloadSettings} from '@/backend/Setting';
 import { initDatabase } from '@/backend/DB';
+import fastify from 'fastify';
+
 const dev = process.env.NODE_ENV !== 'production';
 const hostname = 'localhost';
 // when using middleware `hostname` and `port` must be provided below
 const app = next({ dev });
 const handle = app.getRequestHandler();
-import {settings} from '@/backend/exportedVars'
+import {settings} from '@/backend/exportedVars';
+import { DefaultEventsMap } from '@socket.io/component-emitter';
+import { initAPIRoots } from '@/api/initAPIRoots';
 let server: any;
 reloadSettings();
 
-app.prepare().then(async () => {
+await app.prepare();
+
+
+const serverFactory = (handler: any, opts:any) => {
   server = createServer(async (req, res) => {
-    try {
-      // Be sure to pass `true` as the second argument to `url.parse`.
-      // This tells it to parse the query portion of the URL.
+
+    if (req.url?.startsWith('/api')) {
+      return handler(req, res);
+    } else {
       const parsedUrl = parse(req.url!, true);
       await handle(req, res, parsedUrl);
-    } catch (err) {
-      console.error('Error occurred handling', req.url, err);
-      res.statusCode = 500;
-      res.end('internal server error');
     }
   });
 
-  initSocketIO(server);
-  const db = await initDatabase();
+  return server;
+};
 
-  server.once('error', (err: any) => {
-    console.error(err);
-    process.exit(1);
-  });
+export const fastifyServer = fastify({
+  serverFactory,
+  logger:true,
+  trustProxy: settings.trustProxy
+});
 
-  server.listen(settings.port, () => {
-    console.log(
-      `> Ready on ${settings.ssl ? 'https' : 'http'}://${hostname}:${settings.port}`
-    );
+initSocketIO(server);
+
+
+fastifyServer.ready(async (err) => {
+  server.listen({
+    port: settings.port
   });
 });
+
+initAPIRoots();
