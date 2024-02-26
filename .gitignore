@@ -53,3 +53,7 @@ storybook-static/
 # Var files
 var/dirty.db
 
+
+# API keys
+/APIKEY.txt
+

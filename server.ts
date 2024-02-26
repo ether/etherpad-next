@@ -4,7 +4,8 @@ import next from 'next';
 import { initSocketIO } from '@/backend/socketio';
 import setting, {reloadSettings} from '@/backend/Setting';
 import { initDatabase } from '@/backend/DB';
-import fastify from 'fastify';
+import fastify, { FastifyInstance } from 'fastify';
+import fastifyExpress from '@fastify/express';
 
 const dev = process.env.NODE_ENV !== 'production';
 const hostname = 'localhost';
@@ -14,6 +15,7 @@ const handle = app.getRequestHandler();
 import {settings} from '@/backend/exportedVars';
 import { DefaultEventsMap } from '@socket.io/component-emitter';
 import { initAPIRoots } from '@/api/initAPIRoots';
+import { getAPIKey } from '@/backend/APIHandler';
 let server: any;
 reloadSettings();
 
@@ -37,11 +39,18 @@ const serverFactory = (handler: any, opts:any) => {
 export const fastifyServer = fastify({
   serverFactory,
   logger:true,
-  trustProxy: settings.trustProxy
+  trustProxy: settings.trustProxy,
 });
-
+await fastifyServer.register(fastifyExpress);
+fastifyServer.use((req, res, next) => {
+  console.log("Handling123");
+  if (req.query.apikey === getAPIKey() || req.headers.apikey === getAPIKey()) {
+    next();
+  } else {
+    res.status(401).send('Unauthorized');
+  }
+});
 initSocketIO(server);
-
 
 fastifyServer.ready(async (err) => {
   server.listen({
