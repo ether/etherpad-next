@@ -1,4 +1,4 @@
-import { getDb } from '@/backend/DB';
+import { db } from '@/backend/DB';
 import { randomString } from '@/utils/service/utilFuncs';
 import CustomError from '@/utils/service/CustomError';
 
@@ -71,7 +71,7 @@ export const getColorPalette = () => [
 
 
 export const doesAuthorExist = async (authorID: string) => {
-  const author = await (await getDb())!.get(`globalAuthor:${authorID}`);
+  const author = await db!.get(`globalAuthor:${authorID}`);
 
   return author != null;
 };
@@ -79,14 +79,14 @@ export const doesAuthorExist = async (authorID: string) => {
 
 export const mapAuthorWithDBKey = async (mapperkey: string, mapper:string) => {
   // try to map to an author
-  const author = await (await getDb())!.get(`${mapperkey}:${mapper}`);
+  const author = await db!.get(`${mapperkey}:${mapper}`);
 
   if (author == null) {
     // there is no author with this mapper, so create one
     const author = await createAuthor(null);
 
     // create the token2author relation
-    await (await getDb())!.set(`${mapperkey}:${mapper}`, author.authorID);
+    await db!.set(`${mapperkey}:${mapper}`, author.authorID);
 
     // return the author
     return author;
@@ -158,7 +158,7 @@ export const createAuthor = async (name: string|null) => {
  * Returns the Author Obj of the author
  * @param {String} author The id of the author
  */
-export const getAuthor = async (author: string) => await (await getDb())!.get(`globalAuthor:${author}`);
+export const getAuthor = async (author: string) => await db!.get(`globalAuthor:${author}`);
 
 /**
  * Returns the color Id of the author
@@ -172,7 +172,7 @@ export const getAuthorColorId = async (author: string) => await db!.getSub(`glob
  * @param {String} author The id of the author
  * @param {String} colorId The color id of the author
  */
-export const setAuthorColorId = async (author: string, colorId: string) => await (await getDb())!.setSub(
+export const setAuthorColorId = async (author: string, colorId: string) => await db!.setSub(
   // @ts-ignore
   `globalAuthor:${author}`, ['colorId'], colorId);
 
@@ -181,14 +181,14 @@ export const setAuthorColorId = async (author: string, colorId: string) => await
  * @param {String} author The id of the author
  */
 // @ts-ignore
-export const getAuthorName = async (author: string) => await (await getDb()).getSub(`globalAuthor:${author}`, ['name']);
+export const getAuthorName = async (author: string) => await db.getSub(`globalAuthor:${author}`, ['name']);
 
 /**
  * Sets the name of the author
  * @param {String} author The id of the author
  * @param {String} name The name of the author
  */
-export const setAuthorName = async (author: string, name: string) => await (await getDb())!.setSub(
+export const setAuthorName = async (author: string, name: string) => await db!.setSub(
   // @ts-ignore
   `globalAuthor:${author}`, ['name'], name);
 
@@ -203,7 +203,7 @@ export const listPadsOfAuthor = async (authorID: string) => {
    */
 
   // get the globalAuthor
-  const author = await (await getDb())!.get(`globalAuthor:${authorID}`);
+  const author = await db!.get(`globalAuthor:${authorID}`);
 
   if (author == null) {
     // author does not exist
@@ -223,7 +223,7 @@ export const listPadsOfAuthor = async (authorID: string) => {
  */
 export const addPad = async (authorID: string, padID: string) => {
   // get the entry
-  const author = await (await getDb())!.get(`globalAuthor:${authorID}`);
+  const author = await db!.get(`globalAuthor:${authorID}`);
 
   if (author == null) return;
 
@@ -240,7 +240,7 @@ export const addPad = async (authorID: string, padID: string) => {
   author.padIDs[padID] = 1; // anything, because value is not used
 
   // save the new element back
-  await (await getDb())!.set(`globalAuthor:${authorID}`, author);
+  await db!.set(`globalAuthor:${authorID}`, author);
 };
 
 /**
@@ -249,13 +249,13 @@ export const addPad = async (authorID: string, padID: string) => {
  * @param {String} padID The id of the pad the author contributes to
  */
 export const removePad = async (authorID: string, padID: string) => {
-  const author = await (await getDb())!.get(`globalAuthor:${authorID}`);
+  const author = await db!.get(`globalAuthor:${authorID}`);
 
   if (author == null) return;
 
   if (author.padIDs != null) {
     // remove pad from author
     delete author.padIDs[padID];
-    await (await getDb())!.set(`globalAuthor:${authorID}`, author);
+    await db!.set(`globalAuthor:${authorID}`, author);
   }
 };

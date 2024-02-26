@@ -15,8 +15,21 @@ const nonSettings = ['credentialsFilename', 'settingsFilename'];
 let logger: any|undefined = undefined;
 
 const defaultLogLevel = 'INFO';
+export let logConfig: { level: string; transport: { target: string; }; };
 
 const initLogging = (level: string) => {
+  logConfig = {
+    level: level.toLowerCase(),
+    transport: {
+      target: 'pino-pretty',
+    },
+  };
+  logger = pinoLogger({
+    level: level.toLowerCase(),
+    transport: {
+      target: 'pino-pretty',
+    },
+  });
 
   logger = pinoLogger({
     level: level.toLowerCase(),
@@ -33,7 +46,7 @@ const initLogging = (level: string) => {
 
 // Initialize logging as early as possible with reasonable defaults. Logging will be re-initialized
 // with the user's chosen log level and logger config after the settings have been loaded.
-initLogging(defaultLogLevel);
+initLogging(settings.loglevel);
 
 const root = findEtherpadRoot();
 export const settings: SettingsObj = {
@@ -681,7 +694,7 @@ export const settings: SettingsObj = {
     settings.storeSettings(settingsParsed);
     settings.storeSettings(credentials);
 
-    initLogging(settings.loglevel);
+  initLogging(settings.loglevel);
 
     if (settings.abiword) {
       // Check abiword actually exists

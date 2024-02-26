@@ -8,12 +8,3 @@ export const initDatabase = async () => {
 
   return db;
 };
-
-
-export const getDb = async () => {
-  if (db == null) {
-    console.log('init db')
-    db = await initDatabase();
-  }
-  return db;
-};

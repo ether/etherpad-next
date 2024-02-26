@@ -2,8 +2,7 @@ import { fastifyServer } from '@/server';
 import { createGroup, listAllGroups, createGroupIfNotExistsFor } from '@/service/pads/GroupManager';
 
 
-export const init = ()=> {
-
+export const initGroups = ()=> {
   fastifyServer.post<{
     Querystring: {
       ifNotExists?: boolean;

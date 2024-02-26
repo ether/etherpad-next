@@ -7,8 +7,6 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  webpack: (config, { isServer }) => {
-  },
   eslint: {
     ignoreDuringBuilds: true,
   },

@@ -1,5 +1,5 @@
 import { firstSatisfies } from '@/utils/service/promises';
-import { getDb } from '@/backend/DB';
+import { db } from '@/backend/DB';
 import CustomError from '@/utils/service/CustomError';
 import { isInt, randomString } from '@/utils/service/utilFuncs';
 import { SessionInfo } from '@/types/SessionInfo';
@@ -60,7 +60,7 @@ export const findAuthorID = async (groupID:string, sessionCookie: string) => {
  * @return {Promise<boolean>} Resolves to true if the session exists
  */
 export const doesSessionExist = async (sessionID: string): Promise<boolean> => {
-  const session = await (await getDb())!.get(`session:${sessionID}`);
+  const session = await db!.get(`session:${sessionID}`);
   return (session != null);
 };
 
@@ -131,7 +131,7 @@ export const createSession = async (groupID: string, authorID: string, validUnti
  */
 export const getSessionInfo = async (sessionID:string): Promise<SessionInfo> => {
   // check if the database entry of this session exists
-  const session = await (await getDb())!.get(`session:${sessionID}`);
+  const session = await db!.get(`session:${sessionID}`);
 
   if (session == null) {
     // session does not exist
@@ -150,7 +150,7 @@ export const getSessionInfo = async (sessionID:string): Promise<SessionInfo> => 
  */
 export const deleteSession = async (sessionID:string) => {
   // ensure that the session exists
-  const session = await (await getDb())!.get(`session:${sessionID}`);
+  const session = await db!.get(`session:${sessionID}`);
   if (session == null) {
     throw new CustomError('sessionID does not exist', 'apierror');
   }
@@ -171,7 +171,7 @@ export const deleteSession = async (sessionID:string) => {
 
   // Delete the session record after updating group2sessions and author2sessions so that the state
   // is consistent.
-  await (await getDb())!.remove(`session:${sessionID}`);
+  await db!.remove(`session:${sessionID}`);
 };
 
 
@@ -195,7 +195,7 @@ export const listSessionsOfGroup = async (groupID: string) => {
  */
 const listSessionsWithDBKey = async (dbkey: string) => {
   // get the group2sessions entry
-  const sessionObject = await (await getDb())!.get(dbkey);
+  const sessionObject = await db!.get(dbkey);
   const sessions = sessionObject ? sessionObject.sessionIDs : null;
 
   // iterate through the sessions and get the sessioninfos

@@ -2,7 +2,7 @@ import { createServer } from 'http';
 import { parse } from 'node:url';
 import next from 'next';
 import { initSocketIO } from '@/backend/socketio';
-import setting, {reloadSettings} from '@/backend/Setting';
+import setting, { logConfig, reloadSettings } from '@/backend/Setting';
 import { initDatabase } from '@/backend/DB';
 import fastify, { FastifyInstance } from 'fastify';
 import fastifyExpress from '@fastify/express';
@@ -13,16 +13,16 @@ const hostname = 'localhost';
 const app = next({ dev });
 const handle = app.getRequestHandler();
 import {settings} from '@/backend/exportedVars';
-import { DefaultEventsMap } from '@socket.io/component-emitter';
 import { initAPIRoots } from '@/api/initAPIRoots';
 import { getAPIKey } from '@/backend/APIHandler';
 let server: any;
 reloadSettings();
+await initDatabase();
 
 await app.prepare();
 
 
-const serverFactory = (handler: any, opts:any) => {
+const serverFactory = (handler: any) => {
   server = createServer(async (req, res) => {
 
     if (req.url?.startsWith('/api')) {
@@ -38,12 +38,11 @@ const serverFactory = (handler: any, opts:any) => {
 
 export const fastifyServer = fastify({
   serverFactory,
-  logger:true,
+  logger: logConfig,
   trustProxy: settings.trustProxy,
 });
 await fastifyServer.register(fastifyExpress);
 fastifyServer.use((req, res, next) => {
-  console.log("Handling123");
   if (req.query.apikey === getAPIKey() || req.headers.apikey === getAPIKey()) {
     next();
   } else {

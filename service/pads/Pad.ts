@@ -1,5 +1,5 @@
 import { AText } from '@/types/PadType';
-import { getDb, db } from '@/backend/DB';
+import { db } from '@/backend/DB';
 import { ChangeSet } from '@/service/pads/ChangeSet';
 import { AttributePool } from '@/service/pads/AttributePool';
 import {
