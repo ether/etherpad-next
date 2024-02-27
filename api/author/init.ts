@@ -5,8 +5,12 @@ import {
   getAuthorName,
   listPadsOfAuthor,
 } from '@/service/pads/AuthorManager';
+import {
+  BASE_PATH_AUTHOR_GET,
+  BASE_PATH_AUTHOR_PAD,
+  BASE_PATH_AUTHORS,
+} from '@/api/constants';
 
-const AUTHOR_PATH = '/api/authors';
 
 export const initAuthor = () => {
   fastifyServer.post<{
@@ -16,7 +20,7 @@ export const initAuthor = () => {
       ifNotExists?: boolean;
     };
   }>(
-    AUTHOR_PATH,
+    BASE_PATH_AUTHORS,
     {
       schema: {
         tags: ['author'],
@@ -79,11 +83,11 @@ export const initAuthor = () => {
   );
 
   fastifyServer.get<{
-    Querystring: {
-      authorName?: string;
+    Params: {
+      authorId?: string;
     };
   }>(
-    AUTHOR_PATH + '/pads',
+    BASE_PATH_AUTHOR_PAD,
     {
       schema: {
         tags: ['author'],
@@ -105,10 +109,10 @@ export const initAuthor = () => {
       },
     },
     async (req, res) => {
-      const { authorName } = req.query;
+      const { authorId } = req.params;
 
       try {
-        const author = await listPadsOfAuthor(authorName!);
+        const author = await listPadsOfAuthor(authorId!);
         return {
           code: 0,
           data: {
@@ -130,7 +134,7 @@ export const initAuthor = () => {
       authorName: string;
     };
   }>(
-    AUTHOR_PATH + '/:authorName',
+    BASE_PATH_AUTHOR_GET,
     {
       schema: {
         tags: ['author'],

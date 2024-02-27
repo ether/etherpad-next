@@ -1,4 +1,4 @@
-import { EventEmitter2 } from 'eventemitter2';
+import EventEmitter2 from 'eventemitter2';
 import { MapArrayType } from '@/types/MapArrayType';
 export const EVENT_EMITTER = new EventEmitter2();
 
