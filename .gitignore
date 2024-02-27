@@ -48,3 +48,10 @@ next-env.d.ts
 # Production configuration file
 /settings.json
 storybook-static/
+
+# Var files
+var/dirty.db
+
+# API keys
+/APIKEY.txt
+

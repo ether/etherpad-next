@@ -6,7 +6,7 @@ import { SettingsObj } from '@/types/SettingsObject';
 import { findEtherpadRoot, makeAbsolute } from '@/utils/backend/AbsolutePaths';
 import { argvP } from '@/utils/backend/CLI';
 import minify from '@/utils/backend/minify';
-
+import { version } from '../package.json';
 const suppressDisableMsg = ` -- To suppress these warning messages change suppressErrorsInPadText to true in your settings.json`;
 
 // Exported values that settings.json and credentials.json cannot override.
@@ -15,14 +15,17 @@ const nonSettings = ['credentialsFilename', 'settingsFilename'];
 let logger: any | undefined;
 
 const defaultLogLevel = 'INFO';
+export let logConfig: any;
 
 const initLogging = (level: string) => {
-  logger = pinoLogger({
+  logConfig = {
     level: level.toLowerCase(),
     transport: {
       target: 'pino-pretty',
     },
-  });
+  };
+
+  logger = pinoLogger(logConfig);
   // Overwrites for console output methods
   console.debug = logger.debug.bind(logger);
   console.log = logger.info.bind(logger);
@@ -360,7 +363,7 @@ export const settings: SettingsObj = {
    */
   lowerCasePadIds: false,
   // Return etherpad version from package.json
-  getEpVersion: () => require('../../package.json').version,
+  getEpVersion: () => version,
   // checks if abiword is avaiable
   abiwordAvailable: () => {
     if (settings.abiword != null) {
@@ -746,3 +749,5 @@ logger.info(
 );
 
 export default settings;
+
+export const reloadSettings = settings.reloadSettings;
