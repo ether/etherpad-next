@@ -13,6 +13,7 @@ import { SmartOpAssembler } from '@/service/pads/SmartOpAssembler';
 import { AttributeMap } from '@/service/pads/AttributeMap';
 import { OpCode } from '@/types/OpCode';
 import { Op } from '@/service/pads/Operation';
+import { MergingOpAssembler } from '@/service/pads/MergingOpAssembler';
 
 
 export class ChangeSet {
@@ -45,7 +46,7 @@ export class ChangeSet {
    * @param {AttributePool} pool - attribute pool
    * @returns {string}
    */
-  static composeAttributes = (att1: string, att2: string, resultIsMutation: boolean, pool: AttributePool): string => {
+  static composeAttributes = (att1: string, att2: string, resultIsMutation: boolean, pool?: AttributePool): string => {
     // att1 and att2 are strings like "*3*f*1c", asMutation is a boolean.
     // Sometimes attribute (key,value) pairs are treated as attribute presence
     // information, while other times they are treated as operations that
@@ -67,7 +68,7 @@ export class ChangeSet {
       return att2;
     }
     if (!att2) return att1;
-    return AttributeMap.fromString(att1, pool).updateFromString(att2, !resultIsMutation).toString();
+    return AttributeMap.fromString(att1, pool!).updateFromString(att2, !resultIsMutation).toString();
   };
 
 
@@ -80,7 +81,7 @@ export class ChangeSet {
    * @param {AttributePool} pool - Can be null if definitely not needed.
    * @returns {Op} The result of applying `csOp` to `attOp`.
    */
-  static slicerZipperFunc= (attOp:Op, csOp:Op, pool:AttributePool): Op => {
+  static slicerZipperFunc= (attOp:Op, csOp:Op, pool:AttributePool|null): Op => {
     const opOut = new Op();
     if (!attOp.opcode) {
       copyOp(csOp, opOut);
@@ -125,13 +126,22 @@ export class ChangeSet {
         // normally be the empty string. However, padDiff.js adds attributes to remove ops and needs
         // them preserved so they are copied here.
         ? csOp.attribs
-        : this.composeAttributes(attOp.attribs, csOp.attribs, attOp.opcode === '=', pool);
+        : this.composeAttributes(attOp.attribs, csOp.attribs, attOp.opcode === '=', pool!);
       partiallyConsumedOp.chars -= fullyConsumedOp.chars;
       partiallyConsumedOp.lines -= fullyConsumedOp.lines;
       if (!partiallyConsumedOp.chars) partiallyConsumedOp.opcode = '';
       fullyConsumedOp.opcode = '';
     }
     return opOut;
+  };
+
+  pack = (oldLen: number, newLen: number, opsStr: string, bank: string) => {
+    const lenDiff = newLen - oldLen;
+    const lenDiffStr = (lenDiff >= 0 ? `>${exports.numToString(lenDiff)}`
+      : `<${exports.numToString(-lenDiff)}`);
+    const a = [];
+    a.push('Z:', exports.numToString(oldLen), lenDiffStr, opsStr, '$', bank);
+    return a.join('');
   };
 
   /**
@@ -223,7 +233,7 @@ export class ChangeSet {
    * @param {string} str - String to which a Changeset should be applied
    * @returns {string}
    */
-  static applyToText = (cs: string, str:string) => {
+  static applyToText = (cs: string, str:string): string => {
     const unpacked = this.unpack(cs);
     assert(str.length === unpacked.oldLen, `mismatched apply: ${str.length} / ${unpacked.oldLen}`);
     const bankIter = new StringIterator(unpacked.charBank);
@@ -283,6 +293,14 @@ export class ChangeSet {
   };
 
 
+
+  /**
+   * Parses a string of serialized changeset operations.
+   *
+   * @param {string} ops - Serialized changeset operations.
+   * @yields {Op}
+   * @returns {Generator<Op>}
+   */
   static deserializeOps = function* (ops: string) {
     // TODO: Migrate to String.prototype.matchAll() once there is enough browser support.
     const regex = /((?:\*[0-9a-z]+)*)(?:\|([0-9a-z]+))?([-+=])([0-9a-z]+)|(.)/g;
@@ -357,4 +375,91 @@ export class ChangeSet {
     assert(normalized === cs, 'Invalid changeset: not in canonical form');
     return cs;
   };
+
+  static splitAttributionLines= (attrOps: string, text: string) => {
+    const assem = new MergingOpAssembler();
+    const lines: string[] = [];
+    let pos = 0;
+
+    const appendOp = (op: Op) => {
+      assem.append(op);
+      if (op.lines > 0) {
+        lines.push(assem.toString());
+        assem.clear();
+      }
+      pos += op.chars;
+    };
+
+    for (const op of ChangeSet.deserializeOps(attrOps)) {
+      let numChars = op.chars;
+      let numLines = op.lines;
+      while (numLines > 1) {
+        const newlineEnd = text.indexOf('\n', pos) + 1;
+        assert(newlineEnd > 0, 'newlineEnd <= 0 in splitAttributionLines');
+        op.chars = newlineEnd - pos;
+        op.lines = 1;
+        appendOp(op);
+        numChars -= op.chars;
+        numLines -= op.lines;
+      }
+      if (numLines === 1) {
+        op.chars = numChars;
+        op.lines = 1;
+      }
+      appendOp(op);
+    }
+
+    return lines;
+  };
+
+  /**
+   * Like "substring" but on a single-line attribution string.
+   */
+  static subattribution = (astr: any, start: number, optEnd?: number) => {
+    const attOps = ChangeSet.deserializeOps(astr);
+    let attOpsNext = attOps.next();
+    const assem = new SmartOpAssembler();
+    let attOp = new Op();
+    const csOp = new Op();
+
+    const doCsOp = () => {
+      if (!csOp.chars) return;
+      while (csOp.opcode && (attOp.opcode || !attOpsNext.done)) {
+        if (!attOp.opcode) {
+          attOp = attOpsNext.value!;
+          attOpsNext = attOps.next();
+        }
+        if (csOp.opcode && attOp.opcode && csOp.chars >= attOp.chars &&
+          attOp.lines > 0 && csOp.lines <= 0) {
+          csOp.lines++;
+        }
+        const opOut = ChangeSet.slicerZipperFunc(attOp, csOp, null);
+        if (opOut.opcode) assem.append(opOut);
+      }
+    };
+
+    csOp.opcode = '-';
+    csOp.chars = start;
+
+    doCsOp();
+
+    if (optEnd === undefined) {
+      if (attOp.opcode) {
+        assem.append(attOp);
+      }
+      while (!attOpsNext.done) {
+        assem.append(attOpsNext.value);
+        attOpsNext = attOps.next();
+      }
+    } else {
+      csOp.opcode = '=';
+      csOp.chars = optEnd - start;
+      doCsOp();
+    }
+
+    return assem.toString();
+  };
+
+
+
 }

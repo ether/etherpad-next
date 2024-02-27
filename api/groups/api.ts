@@ -34,8 +34,12 @@ export const initGroups = ()=> {
             message: { type: 'string' }
           }
         },
-
-      }
+      },
+      security: [
+        {
+          "apiKey": []
+        }
+      ]
     },
   }, async (req, res) => {
     let groupId;

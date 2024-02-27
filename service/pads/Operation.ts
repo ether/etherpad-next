@@ -1,4 +1,5 @@
 import { OpCode } from '@/types/OpCode';
+import { numToString } from '@/utils/service/utilFuncs';
 
 /**
  * An operation to apply to a shared document.
@@ -64,5 +65,15 @@ export class Op {
      * @public
      */
     this.attribs = '';
+  }
+
+  /**
+   * @returns {string} A string representation of the operation.
+   */
+  toString(): string {
+    if (!this.opcode) throw new TypeError('null op');
+    if (typeof this.attribs !== 'string') throw new TypeError('attribs must be a string');
+    const l = this.lines ? `|${numToString(this.lines)}` : '';
+    return this.attribs + l + this.opcode + numToString(this.chars);
   }
 }

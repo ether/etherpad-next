@@ -107,7 +107,7 @@ export const mapAuthorWithDBKey = async (mapperkey: string, mapper:string) => {
  * @param {String} token The token of the author
  * @return {Promise<string|*|{authorID: string}|{authorID: *}>}
  */
-const getAuthor4Token = async (token: string): Promise<string | any | { authorID: string; } | { authorID: any; }> => {
+export const getAuthor4Token = async (token: string): Promise<string | any | { authorID: string; } | { authorID: any; }> => {
   const author = await mapAuthorWithDBKey('token2author', token);
 
   // return only the sub value authorID
@@ -181,7 +181,7 @@ export const setAuthorColorId = async (author: string, colorId: string) => await
  * @param {String} author The id of the author
  */
 // @ts-ignore
-export const getAuthorName = async (author: string) => await db.getSub(`globalAuthor:${author}`, ['name']);
+export const getAuthorName = async (author: string) => await db.getSub(`globalAuthor:${author}`, ['name']) as string;
 
 /**
  * Sets the name of the author

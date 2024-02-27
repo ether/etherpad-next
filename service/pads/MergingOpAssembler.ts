@@ -1,9 +1,10 @@
 import { OpAssembler } from '@/service/pads/OpAssembler';
 import { clearOp, copyOp } from '@/utils/service/utilFuncs';
+import { Op } from '@/service/pads/Operation';
 
 export class MergingOpAssembler {
   private assem;
-  private bufOp;
+  private readonly bufOp;
   private bufOpAdditionalCharsAfterNewline;
 
   constructor() {

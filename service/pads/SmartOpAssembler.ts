@@ -1,6 +1,8 @@
 import { MergingOpAssembler } from '@/service/pads/MergingOpAssembler';
 import { StringAssembler } from '@/service/pads/StringAssembler';
 import { opsFromText } from '@/utils/service/utilFuncs';
+import { Op } from '@/service/pads/Operation';
+
 export class SmartOpAssembler {
   private minusAssem = new MergingOpAssembler();
   private plusAssem = new MergingOpAssembler();
@@ -56,7 +58,7 @@ export class SmartOpAssembler {
    * @param {?AttributePool} pool - Attribute pool. Only required if `attribs` is an iterable of
    *     attribute key, value pairs.
    */
-  appendOpWithText = (opcode: ('-'|'+'|'='), text: string, attribs: string|Iterable<any>, pool: any) => {
+  appendOpWithText = (opcode: ('-'|'+'|'='), text: string, attribs: any, pool: any) => {
     for (const op of opsFromText(opcode, text, attribs, pool)) this.append(op);
   };
 

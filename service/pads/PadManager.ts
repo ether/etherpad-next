@@ -2,6 +2,7 @@ import { db } from '@/backend/DB';
 import CustomError from '@/utils/service/CustomError';
 import { Pad } from '@/service/pads/Pad';
 import { settings } from '@/backend/exportedVars';
+import { cleanText } from '@/utils/service/utilFuncs';
 
 class GlobalPads {
   private loadedPads: Map<string, Pad>;
@@ -87,6 +88,8 @@ export class PadManager {
       if (text.length > 100000) {
         throw new CustomError('text must be less than 100k chars', 'apierror');
       }
+
+      text = cleanText(text);
     }
 
     let pad = globalPadCache.get(id);

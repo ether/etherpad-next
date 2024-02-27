@@ -1,4 +1,5 @@
 import {assert} from '@/utils/service/utilFuncs';
+import { Op } from '@/service/pads/Operation';
 
 export class OpAssembler {
   private serialized: string;

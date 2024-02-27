@@ -6,7 +6,7 @@ import { SettingsObj } from '@/types/SettingsObject';
 import { findEtherpadRoot, makeAbsolute } from '@/utils/backend/AbsolutePaths';
 import { argvP } from '@/utils/backend/CLI';
 import minify from '@/utils/backend/minify';
-
+import {version} from '../package.json';
 const suppressDisableMsg = ` -- To suppress these warning messages change suppressErrorsInPadText to true in your settings.json`;
 
 // Exported values that settings.json and credentials.json cannot override.
@@ -364,7 +364,7 @@ export const settings: SettingsObj = {
    */
   lowerCasePadIds: false,
   // Return etherpad version from package.json
-  getEpVersion: () => require('../../package.json').version,
+  getEpVersion: () => version,
   // checks if abiword is avaiable
   abiwordAvailable: () => {
     if (settings.abiword != null) {

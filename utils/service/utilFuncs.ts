@@ -4,6 +4,7 @@ import { AttributeMap } from '@/service/pads/AttributeMap';
 import { SmartOpAssembler } from '@/service/pads/SmartOpAssembler';
 import { Op } from '@/service/pads/Operation';
 import { AText } from '@/types/PadType';
+import { ChangeSet } from '@/service/pads/ChangeSet';
 
 export const assert = (b: boolean, msg: string) => {
   if (!b) error(`Failed assertion: ${msg}`);
@@ -103,7 +104,7 @@ export const  makeSplice = (orig: string, start: number, ndel: number, ins: stri
   })();
   for (const op of ops) assem.append(op);
   assem.endDocument();
-  return exports.pack(orig.length, orig.length + ins.length - ndel, assem.toString(), ins);
+  return ChangeSet.pack(orig.length, orig.length + ins.length - ndel, assem.toString(), ins);
 };
 
 
@@ -140,7 +141,7 @@ export const isInt = (value:number|string): boolean => (parseFloat(value) === pa
 export const opsFromAText = function* (atext: AText) {
   // intentionally skips last newline char of atext
   let lastOp = null;
-  for (const op of exports.deserializeOps(atext.attribs)) {
+  for (const op of ChangeSet.deserializeOps(atext.attribs)) {
     if (lastOp != null) yield lastOp;
     lastOp = op;
   }
@@ -160,3 +161,6 @@ export const opsFromAText = function* (atext: AText) {
   }
   if (lastOp.chars) yield lastOp;
 };
+
+
+export const numToString = (num: number) => num.toString(36).toLowerCase();

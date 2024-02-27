@@ -64,12 +64,12 @@ fastifyServer.use((req, res, next) => {
 await fastifyServer.register(fastifySwagger, {
   swagger: {
     info: {
-      title: 'Test swagger',
-      description: 'Testing the Fastify swagger API',
-      version: '0.1.0'
+      title: 'Swagger UI for Etherpad next',
+      description: 'API documentation for Etherpad next',
+      version: settingsLoaded.getEpVersion(),
     },
     externalDocs: {
-      url: 'https://swagger.io',
+      url: 'https://etherpad.org',
       description: 'Find more info here'
     },
     host: `localhost:${settingsLoaded.port}`,
@@ -80,6 +80,7 @@ await fastifyServer.register(fastifySwagger, {
       { name: 'pad', description: 'Pad related end-points' },
       { name: 'author', description: 'Author related end-points' },
       { name: 'group', description: 'Group related end-points' },
+      {name: 'session', description: 'Session related end-points' },
     ],
     securityDefinitions: {
       apiKey: {

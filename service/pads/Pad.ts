@@ -25,11 +25,12 @@ import { AttributeMap } from '@/service/pads/AttributeMap';
 import { doesGroupExist } from '@/service/pads/GroupManager';
 import { SmartOpAssembler } from '@/service/pads/SmartOpAssembler';
 import { settings } from '@/backend/exportedVars';
+import { EVENT_EMITTER } from '@/hooks/Hook';
 
 
 export class Pad {
   private db: any;
-  private readonly atext: AText;
+  readonly atext: AText;
   private pool: AttributePool;
   private head: number;
   private chatHead: number;
@@ -60,14 +61,14 @@ export class Pad {
     } else {
       if (text == null) {
         const context = {pad: this, authorId, type: 'text', content: settings.defaultPadText};
-        //TODO await hooks.aCallAll('padDefaultContent', context);
+        EVENT_EMITTER.emit('padDefaultContent', context);
         if (context.type !== 'text') throw new Error(`unsupported content type: ${context.type}`);
         text = cleanText(context.content);
       }
       const firstChangeset = makeSplice('\n', 0, 0, text);
       await this.appendRevision(firstChangeset, authorId);
     }
-    //TODO await hooks.aCallAll('padLoad', {pad: this});
+    EVENT_EMITTER.emit('padLoad', this);
   }
 
   get apool() {
@@ -108,7 +109,6 @@ export class Pad {
     // ex. getNumForAuthor
     if (authorId !== '') this.pool.putAttrib(['author', authorId]);
 
-    const hook = this.head === 0 ? 'padCreate' : 'padUpdate';
     await Promise.all([
       // @ts-ignore
       this.db.set(`pad:${this.id}:revs:${newRev}`, {
@@ -545,13 +545,7 @@ export class Pad {
 
     // delete the pad entry and delete pad from padManager
     p.push(padManagerInstance.removePad(padID));
-    //TODO p.push(hooks.aCallAll('padRemove', {
-    /*  get padID() {
-        warnDeprecated('padRemove padID context property is deprecated; use pad.id instead');
-        return this.pad.id;
-      },
-      pad: this,
-    }));*/
+    EVENT_EMITTER.emit('padRemove', {padID: this.id});
     await Promise.all(p);
   }
 
@@ -711,8 +705,7 @@ export class Pad {
       })
       .batch(100).buffer(99);
     for (const p of chats) await p;
-
-    //TODO await hooks.aCallAll('padCheck', {pad: this});
+    EVENT_EMITTER.emit('padCheck', {pad: this});
   }
 
   async removePadIfForceIsTrueAndAlreadyExist(destinationID: string, force: boolean|string) {

@@ -185,6 +185,16 @@ export const listSessionsOfGroup = async (groupID: string) => {
   return await listSessionsWithDBKey(`group2sessions:${groupID}`);
 };
 
+export const listSessionsOfAuthor = async (authorID: string) => {
+  // check that the author exists
+  const exists = await doesAuthorExist(authorID);
+  if (!exists) {
+    throw new CustomError('authorID does not exist', 'apierror');
+  }
+
+  return await listSessionsWithDBKey(`author2sessions:${authorID}`);
+};
+
 
 // this function is basically the code listSessionsOfAuthor and listSessionsOfGroup has in common
 // required to return null rather than an empty object if there are none
