@@ -25,7 +25,8 @@ import { AttributeMap } from '@/service/pads/AttributeMap';
 import { doesGroupExist } from '@/service/pads/GroupManager';
 import { SmartOpAssembler } from '@/service/pads/SmartOpAssembler';
 import { settings } from '@/backend/exportedVars';
-import { EVENT_EMITTER } from '@/hooks/Hook';
+import { EVENT_EMITTER, PLUGIN_HOOKS_INSTANCE } from '@/hooks/Hook';
+import { padDefaultContent, padLoaded } from '@/hooks/constants';
 
 
 export class Pad {
@@ -61,14 +62,17 @@ export class Pad {
     } else {
       if (text == null) {
         const context = {pad: this, authorId, type: 'text', content: settings.defaultPadText};
-        EVENT_EMITTER.emit('padDefaultContent', context);
+        EVENT_EMITTER.emit(padDefaultContent, context);
+        PLUGIN_HOOKS_INSTANCE.callHook(padDefaultContent, context);
+
         if (context.type !== 'text') throw new Error(`unsupported content type: ${context.type}`);
         text = cleanText(context.content);
       }
       const firstChangeset = makeSplice('\n', 0, 0, text);
       await this.appendRevision(firstChangeset, authorId);
     }
-    EVENT_EMITTER.emit('padLoad', this);
+    EVENT_EMITTER.emit(padLoaded, this);
+    PLUGIN_HOOKS_INSTANCE.callHook(padLoaded, this);
   }
 
   get apool() {

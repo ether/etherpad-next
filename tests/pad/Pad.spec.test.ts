@@ -12,8 +12,9 @@ import { padManagerInstance } from '@/service/pads/PadManager';
 import { getAuthor4Token } from '@/service/pads/AuthorManager';
 import { cleanText } from '@/utils/service/utilFuncs';
 import { initDatabase } from '@/backend/DB';
-import { EVENT_EMITTER } from '@/hooks/Hook';
+import { PLUGIN_HOOKS_INSTANCE } from '@/hooks/Hook';
 import { PadDefaultLoaded } from '@/hooks/PadDefaultLoaded';
+import { padDefaultContent } from '@/hooks/constants';
 
 describe(__filename, function () {
   const backups:MapArrayType<any> = {};
@@ -22,10 +23,11 @@ describe(__filename, function () {
 
   beforeAll(async function () {
     backups.defaultPadText = settings.defaultPadText;
-    initDatabase();
+    await initDatabase();
   });
 
   beforeEach(async function () {
+    PLUGIN_HOOKS_INSTANCE.clearHooks();
     padId = randomString();
     assert(!(await padManagerInstance.doesPadExist(padId)));
   });
@@ -55,58 +57,76 @@ describe(__filename, function () {
 
   describe('padDefaultContent hook', async ()=> {
     it('runs when a pad is created without specific text', async function () {
+      const p = new Promise<void>( (resolve)=>{
+        PLUGIN_HOOKS_INSTANCE.registerHook(padDefaultContent, (ctx: PadDefaultLoaded) => {
+          resolve();
+        });
+      });
       pad = await padManagerInstance.getPad(padId);
+      await p;
     });
 
     it('not run if pad is created with specific text', async function () {
+      PLUGIN_HOOKS_INSTANCE.registerHook(padDefaultContent, (ctx: PadDefaultLoaded) => {
+        assert.fail('hook ran');
+      });
       pad = await padManagerInstance.getPad(padId, '');
     });
 
-    it('defaults to settings.defaultPadText', async ()=> {
-      pad = await padManagerInstance.getPad(padId);
-    });
-
     it('passes the pad object', async function () {
-      pad = await padManagerInstance.getPad(padId);
+      const want = await getAuthor4Token(`t.${padId}`);
+      const gotP = new Promise((resolve) => {
+        PLUGIN_HOOKS_INSTANCE.registerHook(padDefaultContent, async (ctx: PadDefaultLoaded) => {
+          resolve(ctx.pad);
+        });
+      });
+      pad = await padManagerInstance.getPad(padId, null, want);
+      assert.equal(await gotP, pad);
     });
 
     it('passes empty authorId if not provided', async function () {
-      pad = await padManagerInstance.getPad(padId);
+      const want = await getAuthor4Token(`t.${padId}`);
+      const gotP = new Promise((resolve) => {
+        PLUGIN_HOOKS_INSTANCE.registerHook(padDefaultContent, async (ctx: PadDefaultLoaded) => {
+          resolve(ctx.authorId);
+        });
+      });
+      pad = await padManagerInstance.getPad(padId, null, want);
+      assert.equal(await gotP, want);
     });
 
     it('passes provided authorId', async function () {
       const want = await getAuthor4Token(`t.${padId}`);
+      const gotP = new Promise((resolve) => {
+        PLUGIN_HOOKS_INSTANCE.registerHook(padDefaultContent, async (ctx: PadDefaultLoaded) => {
+          resolve(ctx.authorId);
+        });
+      });
       pad = await padManagerInstance.getPad(padId, null, want);
+      assert.equal(await gotP, want);
     });
 
     it('uses provided content', async function () {
       const want = 'hello world';
-      const gotP = new Promise<string>((resolve) => {
-        EVENT_EMITTER.on('padLoad', (ctx: Pad) => {
-          console.log("Result is",ctx);
-          assert.equal(ctx.headRevisionNumber, 0);
-          assert.equal(ctx.text(), `${want}\n`);
-          resolve(ctx.text());
-        });
+      PLUGIN_HOOKS_INSTANCE.registerHook(padDefaultContent, async (ctx: PadDefaultLoaded)=>{
+          ctx.type = 'text';
+          ctx.content = want;
       });
       assert.notEqual(want, settings.defaultPadText);
       pad = await padManagerInstance.getPad(padId, want);
-      assert.equal(await gotP, `${want}\n`);
+      assert.equal(pad.text(), `${want}\n`);
     });
 
     it('cleans provided content', async function () {
       const input = 'foo\r\nbar\r\tbaz';
       const want = 'foo\nbar\n        baz';
       assert.notEqual(want, settings.defaultPadText);
-      const gotP = new Promise<PadDefaultLoaded>((resolve, reject)=>{
-        EVENT_EMITTER.on('padDefaultContent', (ctx: PadDefaultLoaded) => {
-          ctx.type = 'text';
-          ctx.content = input;
-          resolve(ctx);
-        });
+      PLUGIN_HOOKS_INSTANCE.registerHook(padDefaultContent, (ctx: PadDefaultLoaded)=>{
+        ctx.type = 'text';
+        ctx.content = input;
       });
       pad = await padManagerInstance.getPad(padId);
-      assert.equal((await gotP).content, `${want}\n`);
+      assert.equal(pad.text(), `${want}\n`);
     });
   });
 });

@@ -88,8 +88,6 @@ export class PadManager {
       if (text.length > 100000) {
         throw new CustomError('text must be less than 100k chars', 'apierror');
       }
-
-      text = cleanText(text);
     }
 
     let pad = globalPadCache.get(id);

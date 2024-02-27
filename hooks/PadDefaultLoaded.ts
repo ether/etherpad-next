@@ -1,7 +1,8 @@
 import { Pad } from '@/service/pads/Pad';
 
-export type  PadDefaultLoaded = {
+export type PadDefaultLoaded = {
   pad: Pad,
-    type: string,
+  authorId: string,
+  type: string,
   content: string
 }
