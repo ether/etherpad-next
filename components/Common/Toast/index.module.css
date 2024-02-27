@@ -1,0 +1,60 @@
+.root {
+  @apply m-6
+  w-fit
+  max-w-80
+  rounded
+  border
+  border-gray-200
+  px-4
+  py-3
+  shadow-lg
+  dark:border-gray-800;
+
+  .message {
+    @apply inline-flex
+        items-center
+        justify-center
+        gap-2
+        font-medium;
+
+    svg {
+      @apply size-5;
+    }
+  }
+}
+
+.success {
+  @apply border-green-200
+    bg-green-100
+    text-green-800
+    dark:border-green-600
+    dark:bg-green-800
+    dark:text-white;
+}
+
+.error {
+  @apply border-red-200
+    bg-red-100
+    text-red-800
+    dark:border-red-600
+    dark:bg-red-800
+    dark:text-white;
+}
+
+.warning {
+  @apply border-yellow-200
+    bg-yellow-100
+    text-yellow-800
+    dark:border-yellow-600
+    dark:bg-yellow-800
+    dark:text-white;
+}
+
+.info {
+  @apply border-ether-200
+    bg-ether-100
+    text-ether-800
+    dark:border-ether-600
+    dark:bg-ether-800
+    dark:text-white;
+}

@@ -1,4 +1,4 @@
-import { HeartIcon } from '@heroicons/react/20/solid';
+import { Heart } from 'lucide-react';
 import Button from './';
 import type { Meta as MetaObj, StoryObj } from '@storybook/react';
 
@@ -9,7 +9,7 @@ const defaultStory: Story = {
   args: {
     children: (
       <>
-        <HeartIcon className="size-6" /> We love Etherpad
+        <Heart className="size-6" /> We love Etherpad
       </>
     ),
     // it's allow to have button on the storybook layout to toggle the disabled state
