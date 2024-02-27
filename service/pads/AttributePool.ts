@@ -59,7 +59,7 @@ import { Attribute } from '@/types/Attribute';
  */
 export class AttributePool {
   numToAttrib: NumToAttrib;
-  private attribToNum:  AttributeToNum;
+  private attribToNum: AttributeToNum;
   private nextNum: number;
   constructor() {
     /**
@@ -102,7 +102,8 @@ export class AttributePool {
    */
   clone(): AttributePool {
     const c = new AttributePool();
-    for (const [n, a] of Object.entries(this.numToAttrib)) { // @ts-ignore
+    for (const [n, a] of Object.entries(this.numToAttrib)) {
+      // @ts-ignore
       c.numToAttrib[n] = [a[0], a[1]];
     }
     Object.assign(c.attribToNum, this.attribToNum);
@@ -220,29 +221,38 @@ export class AttributePool {
    * Asserts that the data in the pool is consistent. Throws if inconsistent.
    */
   check() {
-    if (!Number.isInteger(this.nextNum)) throw new Error('nextNum property is not an integer');
+    if (!Number.isInteger(this.nextNum))
+      throw new Error('nextNum property is not an integer');
     if (this.nextNum < 0) throw new Error('nextNum property is negative');
     for (const prop of ['numToAttrib', 'attribToNum']) {
       // @ts-ignore
       const obj = this[prop];
       if (obj == null) throw new Error(`${prop} property is null`);
-      if (typeof obj !== 'object') throw new TypeError(`${prop} property is not an object`);
+      if (typeof obj !== 'object')
+        throw new TypeError(`${prop} property is not an object`);
       const keys = Object.keys(obj);
       if (keys.length !== this.nextNum) {
-        throw new Error(`${prop} size mismatch (want ${this.nextNum}, got ${keys.length})`);
+        throw new Error(
+          `${prop} size mismatch (want ${this.nextNum}, got ${keys.length})`
+        );
       }
     }
     for (let i = 0; i < this.nextNum; ++i) {
       const attr = this.numToAttrib[`${i}`];
-      if (!Array.isArray(attr)) throw new TypeError(`attrib ${i} is not an array`);
-      if (attr.length !== 2) throw new Error(`attrib ${i} is not an array of length 2`);
+      if (!Array.isArray(attr))
+        throw new TypeError(`attrib ${i} is not an array`);
+      if (attr.length !== 2)
+        throw new Error(`attrib ${i} is not an array of length 2`);
       const [k, v] = attr;
       if (k == null) throw new TypeError(`attrib ${i} key is null`);
-      if (typeof k !== 'string') throw new TypeError(`attrib ${i} key is not a string`);
+      if (typeof k !== 'string')
+        throw new TypeError(`attrib ${i} key is not a string`);
       if (v == null) throw new TypeError(`attrib ${i} value is null`);
-      if (typeof v !== 'string') throw new TypeError(`attrib ${i} value is not a string`);
+      if (typeof v !== 'string')
+        throw new TypeError(`attrib ${i} value is not a string`);
       const attrStr = String(attr);
-      if (this.attribToNum[attrStr] !== i) throw new Error(`attribToNum for ${attrStr} !== ${i}`);
+      if (this.attribToNum[attrStr] !== i)
+        throw new Error(`attribToNum for ${attrStr} !== ${i}`);
     }
   }
 }

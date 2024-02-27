@@ -69,15 +69,13 @@ export const getColorPalette = () => [
   '#b3b3e6',
 ];
 
-
 export const doesAuthorExist = async (authorID: string) => {
   const author = await db!.get(`globalAuthor:${authorID}`);
 
   return author != null;
 };
 
-
-export const mapAuthorWithDBKey = async (mapperkey: string, mapper:string) => {
+export const mapAuthorWithDBKey = async (mapperkey: string, mapper: string) => {
   // try to map to an author
   const author = await db!.get(`${mapperkey}:${mapper}`);
 
@@ -98,29 +96,32 @@ export const mapAuthorWithDBKey = async (mapperkey: string, mapper:string) => {
   await db!.setSub(`globalAuthor:${author}`, ['timestamp'], Date.now());
 
   // return the author
-  return {authorID: author};
+  return { authorID: author };
 };
-
 
 /**
  * Returns the AuthorID for a token.
  * @param {String} token The token of the author
  * @return {Promise<string|*|{authorID: string}|{authorID: *}>}
  */
-export const getAuthor4Token = async (token: string): Promise<string | any | { authorID: string; } | { authorID: any; }> => {
+export const getAuthor4Token = async (
+  token: string
+): Promise<string | any | { authorID: string } | { authorID: any }> => {
   const author = await mapAuthorWithDBKey('token2author', token);
 
   // return only the sub value authorID
   return author ? author.authorID : author;
 };
 
-
 /**
  * Returns the AuthorID for a mapper.
  * @param {String} authorMapper The mapper
  * @param {String} name The name of the author (optional)
  */
-export const createAuthorIfNotExistsFor = async (authorMapper: string, name: string) => {
+export const createAuthorIfNotExistsFor = async (
+  authorMapper: string,
+  name: string
+) => {
   const author = await mapAuthorWithDBKey('mapper2author', authorMapper);
 
   if (name) {
@@ -131,18 +132,17 @@ export const createAuthorIfNotExistsFor = async (authorMapper: string, name: str
   return author;
 };
 
-
 /**
  * Internal function that creates the database entry for an author
  * @param {String} name The name of the author
  */
-export const createAuthor = async (name: string|null) => {
+export const createAuthor = async (name: string | null) => {
   // create the new author name
   const author = `a.${randomString(16)}`;
 
   // create the globalAuthors db entry
   const authorObj = {
-    colorId: Math.floor(Math.random() * (getColorPalette().length)),
+    colorId: Math.floor(Math.random() * getColorPalette().length),
     name,
     timestamp: Date.now(),
   };
@@ -151,46 +151,61 @@ export const createAuthor = async (name: string|null) => {
   // @ts-ignore
   await db!.set(`globalAuthor:${author}`, authorObj);
 
-  return {authorID: author};
+  return { authorID: author };
 };
 
 /**
  * Returns the Author Obj of the author
  * @param {String} author The id of the author
  */
-export const getAuthor = async (author: string) => await db!.get(`globalAuthor:${author}`);
+export const getAuthor = async (author: string) =>
+  await db!.get(`globalAuthor:${author}`);
 
 /**
  * Returns the color Id of the author
  * @param {String} author The id of the author
  */
 // @ts-ignore
-export const getAuthorColorId = async (author: string) => await db!.getSub(`globalAuthor:${author}`, ['colorId']);
+export const getAuthorColorId = async (author: string) =>
+  // @ts-ignore
+  await db!.getSub(`globalAuthor:${author}`, ['colorId']);
 
 /**
  * Sets the color Id of the author
  * @param {String} author The id of the author
  * @param {String} colorId The color id of the author
  */
-export const setAuthorColorId = async (author: string, colorId: string) => await db!.setSub(
-  // @ts-ignore
-  `globalAuthor:${author}`, ['colorId'], colorId);
+export const setAuthorColorId = async (author: string, colorId: string) =>
+  await db!.setSub(
+    // @ts-ignore
+    `globalAuthor:${author}`,
+    // @ts-ignore
+    ['colorId'],
+    colorId
+  );
 
 /**
  * Returns the name of the author
  * @param {String} author The id of the author
  */
 // @ts-ignore
-export const getAuthorName = async (author: string) => await db.getSub(`globalAuthor:${author}`, ['name']) as string;
+export const getAuthorName = async (author: string) =>
+  // @ts-ignore
+  (await db.getSub(`globalAuthor:${author}`, ['name'])) as string;
 
 /**
  * Sets the name of the author
  * @param {String} author The id of the author
  * @param {String} name The name of the author
  */
-export const setAuthorName = async (author: string, name: string) => await db!.setSub(
-  // @ts-ignore
-  `globalAuthor:${author}`, ['name'], name);
+export const setAuthorName = async (author: string, name: string) =>
+  await db!.setSub(
+    // @ts-ignore
+    `globalAuthor:${author}`,
+    // @ts-ignore
+    ['name'],
+    name
+  );
 
 /**
  * Returns an array of all pads this author contributed to
@@ -213,7 +228,7 @@ export const listPadsOfAuthor = async (authorID: string) => {
   // everything is fine, return the pad IDs
   const padIDs = Object.keys(author.padIDs || {});
 
-  return {padIDs};
+  return { padIDs };
 };
 
 /**

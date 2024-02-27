@@ -6,7 +6,7 @@ import { SessionInfo } from '@/types/SessionInfo';
 import { doesAuthorExist } from '@/service/pads/AuthorManager';
 import { doesGroupExist } from '@/service/pads/GroupManager';
 
-export const findAuthorID = async (groupID:string, sessionCookie: string) => {
+export const findAuthorID = async (groupID: string, sessionCookie: string) => {
   if (!sessionCookie) return undefined;
   /*
    * Sometimes, RFC 6265-compliant web servers may send back a cookie whose
@@ -32,12 +32,14 @@ export const findAuthorID = async (groupID:string, sessionCookie: string) => {
    * Also, see #3820.
    */
   const sessionIDs = sessionCookie.replace(/^"|"$/g, '').split(',');
-  const sessionInfoPromises = sessionIDs.map(async (id) => {
+  const sessionInfoPromises = sessionIDs.map(async id => {
     try {
       return await getSessionInfo(id);
-    } catch (err:any) {
+    } catch (err: any) {
       if (err.message === 'sessionID does not exist') {
-        console.debug(`SessionManager getAuthorID: no session exists with ID ${id}`);
+        console.debug(
+          `SessionManager getAuthorID: no session exists with ID ${id}`
+        );
       } else {
         throw err;
       }
@@ -45,11 +47,16 @@ export const findAuthorID = async (groupID:string, sessionCookie: string) => {
     return undefined;
   });
   const now = Math.floor(Date.now() / 1000);
-  const isMatch = (si: {
-    groupID: string;
-    validUntil: number;
-  }|null) => (si != null && si.groupID === groupID && now < si.validUntil);
-  const sessionInfo = await firstSatisfies<SessionInfo>(sessionInfoPromises as Promise<SessionInfo>[], isMatch) as SessionInfo;
+  const isMatch = (
+    si: {
+      groupID: string;
+      validUntil: number;
+    } | null
+  ) => si != null && si.groupID === groupID && now < si.validUntil;
+  const sessionInfo = (await firstSatisfies<SessionInfo>(
+    sessionInfoPromises as Promise<SessionInfo>[],
+    isMatch
+  )) as SessionInfo;
   if (sessionInfo == null) return undefined;
   return sessionInfo.authorID;
 };
@@ -61,11 +68,14 @@ export const findAuthorID = async (groupID:string, sessionCookie: string) => {
  */
 export const doesSessionExist = async (sessionID: string): Promise<boolean> => {
   const session = await db!.get(`session:${sessionID}`);
-  return (session != null);
+  return session != null;
 };
 
-
-export const createSession = async (groupID: string, authorID: string, validUntil: number) => {
+export const createSession = async (
+  groupID: string,
+  authorID: string,
+  validUntil: number
+) => {
   // check if the group exists
   const groupExists = await doesGroupExist(groupID);
   if (!groupExists) {
@@ -108,7 +118,7 @@ export const createSession = async (groupID: string, authorID: string, validUnti
 
   // set the session into the database
   // @ts-ignore
-  await db!.set(`session:${sessionID}`, {groupID, authorID, validUntil});
+  await db!.set(`session:${sessionID}`, { groupID, authorID, validUntil });
 
   // Add the session ID to the group2sessions and author2sessions records after creating the session
   // so that the state is consistent.
@@ -121,7 +131,7 @@ export const createSession = async (groupID: string, authorID: string, validUnti
     db.setSub(`author2sessions:${authorID}`, ['sessionIDs', sessionID], 1),
   ]);
 
-  return {sessionID};
+  return { sessionID };
 };
 
 /**
@@ -129,7 +139,9 @@ export const createSession = async (groupID: string, authorID: string, validUnti
  * @param {String} sessionID The id of the session
  * @return {Promise<Object>} the sessioninfos
  */
-export const getSessionInfo = async (sessionID:string): Promise<SessionInfo> => {
+export const getSessionInfo = async (
+  sessionID: string
+): Promise<SessionInfo> => {
   // check if the database entry of this session exists
   const session = await db!.get(`session:${sessionID}`);
 
@@ -142,13 +154,12 @@ export const getSessionInfo = async (sessionID:string): Promise<SessionInfo> => 
   return session;
 };
 
-
 /**
  * Deletes a session
  * @param {String} sessionID The id of the session
  * @return {Promise<void>} Resolves when the session is deleted
  */
-export const deleteSession = async (sessionID:string) => {
+export const deleteSession = async (sessionID: string) => {
   // ensure that the session exists
   const session = await db!.get(`session:${sessionID}`);
   if (session == null) {
@@ -164,16 +175,25 @@ export const deleteSession = async (sessionID:string) => {
     // property, and writes the result. Setting a property to `undefined` deletes that property
     // (JSON.stringify() ignores such properties).
     // @ts-ignore
-    db!.setSub(`group2sessions:${groupID}`, ['sessionIDs', sessionID], undefined),
+    db!.setSub(
+      `group2sessions:${groupID}`,
+      // @ts-ignore
+      ['sessionIDs', sessionID],
+      undefined
+    ),
     // @ts-ignore
-    db!.setSub(`author2sessions:${authorID}`, ['sessionIDs', sessionID], undefined),
+    db!.setSub(
+      `author2sessions:${authorID}`,
+      // @ts-ignore
+      ['sessionIDs', sessionID],
+      undefined
+    ),
   ]);
 
   // Delete the session record after updating group2sessions and author2sessions so that the state
   // is consistent.
   await db!.remove(`session:${sessionID}`);
 };
-
 
 export const listSessionsOfGroup = async (groupID: string) => {
   // check that the group exists
@@ -195,7 +215,6 @@ export const listSessionsOfAuthor = async (authorID: string) => {
   return await listSessionsWithDBKey(`author2sessions:${authorID}`);
 };
 
-
 // this function is basically the code listSessionsOfAuthor and listSessionsOfGroup has in common
 // required to return null rather than an empty object if there are none
 /**
@@ -212,7 +231,7 @@ const listSessionsWithDBKey = async (dbkey: string) => {
   for (const sessionID of Object.keys(sessions || {})) {
     try {
       sessions[sessionID] = await getSessionInfo(sessionID);
-    } catch (err:any) {
+    } catch (err: any) {
       if (err.name === 'apierror') {
         console.warn(`Found bad session ${sessionID} in ${dbkey}`);
         sessions[sessionID] = null;

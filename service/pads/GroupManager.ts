@@ -13,7 +13,7 @@ export const listAllGroups = async () => {
   groups = groups || {};
 
   const groupIDs = Object.keys(groups);
-  return {groupIDs};
+  return { groupIDs };
 };
 
 /**
@@ -31,17 +31,22 @@ export const deleteGroup = async (groupID: string): Promise<void> => {
   }
 
   // iterate through all pads of this group and delete them (in parallel)
-  await Promise.all(Object.keys(group.pads).map(async (padId) => {
-    const pad = await padManagerInstance.getPad(padId);
-    await pad!.remove();
-  }));
+  await Promise.all(
+    Object.keys(group.pads).map(async padId => {
+      const pad = await padManagerInstance.getPad(padId);
+      await pad!.remove();
+    })
+  );
 
   // Delete associated sessions in parallel. This should be done before deleting the group2sessions
   // record because deleting a session updates the group2sessions record.
-  const {sessionIDs = {}} = await db!.get(`group2sessions:${groupID}`) || {};
-  await Promise.all(Object.keys(sessionIDs).map(async (sessionId) => {
-    await deleteSession(sessionId);
-  }));
+  const { sessionIDs = {} } =
+    (await db!.get(`group2sessions:${groupID}`)) || {};
+  await Promise.all(
+    Object.keys(sessionIDs).map(async sessionId => {
+      await deleteSession(sessionId);
+    })
+  );
 
   await Promise.all([
     db!.remove(`group2sessions:${groupID}`),
@@ -50,7 +55,9 @@ export const deleteGroup = async (groupID: string): Promise<void> => {
     // ignores such properties).
     // @ts-ignore
     db!.setSub('groups', [groupID], undefined),
-    ...Object.keys(group.mappings || {}).map(async (m) => await db!.remove(`mapper2group:${m}`)),
+    ...Object.keys(group.mappings || {}).map(
+      async m => await db!.remove(`mapper2group:${m}`)
+    ),
   ]);
 
   // Remove the group record after updating the `groups` record so that the state is consistent.
@@ -66,7 +73,7 @@ export const doesGroupExist = async (groupID: string) => {
   // try to get the group entry
   const group = await db!.get(`group:${groupID}`);
 
-  return (group != null);
+  return group != null;
 };
 
 /**
@@ -76,13 +83,13 @@ export const doesGroupExist = async (groupID: string) => {
 export const createGroup = async () => {
   const groupID = `g.${randomString(16)}`;
   // @ts-ignore
-  await db!.set(`group:${groupID}`, {pads: {}, mappings: {}});
+  await db!.set(`group:${groupID}`, { pads: {}, mappings: {} });
   // Add the group to the `groups` record after the group's individual record is created so that
   // the state is consistent. Note: UeberDB's setSub() method atomically reads the record, updates
   // the appropriate property, and writes the result.
   // @ts-ignore
   await db!.setSub('groups', [groupID], 1);
-  return {groupID};
+  return { groupID };
 };
 
 /**
@@ -90,12 +97,14 @@ export const createGroup = async () => {
  * @param groupMapper the mapper of the group
  * @return {Promise<{groupID: string}|{groupID: *}>} a promise that resolves to the group ID
  */
-export const createGroupIfNotExistsFor = async (groupMapper: string|object) => {
+export const createGroupIfNotExistsFor = async (
+  groupMapper: string | object
+) => {
   if (typeof groupMapper !== 'string') {
     throw new CustomError('groupMapper is not a string', 'apierror');
   }
   const groupID = await db!.get(`mapper2group:${groupMapper}`);
-  if (groupID && await doesGroupExist(groupID)) return {groupID};
+  if (groupID && (await doesGroupExist(groupID))) return { groupID };
   const result = await createGroup();
   await Promise.all([
     db!.set(`mapper2group:${groupMapper}`, result.groupID),
@@ -117,7 +126,12 @@ export const createGroupIfNotExistsFor = async (groupMapper: string|object) => {
  * @param {String} authorId The id of the author
  * @return {Promise<{padID: string}>} a promise that resolves to the id of the new pad
  */
-export const createGroupPad = async (groupID: string, padName: string, text: string, authorId: string = ''): Promise<{ padID: string; }> => {
+export const createGroupPad = async (
+  groupID: string,
+  padName: string,
+  text: string,
+  authorId: string = ''
+): Promise<{ padID: string }> => {
   // create the padID
   const padID = `${groupID}$${padName}`;
 
@@ -143,7 +157,7 @@ export const createGroupPad = async (groupID: string, padName: string, text: str
   // @ts-ignore
   await db!.setSub(`group:${groupID}`, ['pads', padID], 1);
 
-  return {padID};
+  return { padID };
 };
 
 /**
@@ -151,7 +165,9 @@ export const createGroupPad = async (groupID: string, padName: string, text: str
  * @param {String} groupID The id of the group
  * @return {Promise<{padIDs: string[]}>} a promise that resolves to the ids of all pads of the group
  */
-export const listPads = async (groupID: string): Promise<{ padIDs: string[]; }> => {
+export const listPads = async (
+  groupID: string
+): Promise<{ padIDs: string[] }> => {
   const exists = await doesGroupExist(groupID);
 
   // ensure the group exists
@@ -164,5 +180,5 @@ export const listPads = async (groupID: string): Promise<{ padIDs: string[]; }> 
   const result = await db!.getSub(`group:${groupID}`, ['pads']);
   const padIDs = Object.keys(result);
 
-  return {padIDs};
+  return { padIDs };
 };

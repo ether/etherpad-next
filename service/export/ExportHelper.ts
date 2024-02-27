@@ -28,11 +28,20 @@ const { checkValidRev } = require('./checkValidRev');
 /*
  * This method seems unused in core and no plugins depend on it
  */
-export const getPadPlainText = (pad: { getInternalRevisionAText: (arg0: any) => any; atext: any; pool: any; }, revNum: undefined) => {
+export const getPadPlainText = (
+  pad: { getInternalRevisionAText: (arg0: any) => any; atext: any; pool: any },
+  revNum: undefined
+) => {
   const _analyzeLine = exports._analyzeLine;
-  const atext = ((revNum !== undefined) ? pad.getInternalRevisionAText(checkValidRev(revNum)) : pad.atext);
+  const atext =
+    revNum !== undefined
+      ? pad.getInternalRevisionAText(checkValidRev(revNum))
+      : pad.atext;
   const textLines = atext.text.slice(0, -1).split('\n');
-  const attribLines = Changeset.splitAttributionLines(atext.attribs, atext.text);
+  const attribLines = Changeset.splitAttributionLines(
+    atext.attribs,
+    atext.text
+  );
   const apool = pad.pool;
 
   const pieces = [];
@@ -41,7 +50,13 @@ export const getPadPlainText = (pad: { getInternalRevisionAText: (arg0: any) => 
     if (line.listLevel) {
       const numSpaces = line.listLevel * 2 - 1;
       const bullet = '*';
-      pieces.push(new Array(numSpaces + 1).join(' '), bullet, ' ', line.text, '\n');
+      pieces.push(
+        new Array(numSpaces + 1).join(' '),
+        bullet,
+        ' ',
+        line.text,
+        '\n'
+      );
     } else {
       pieces.push(line.text, '\n');
     }
@@ -50,10 +65,14 @@ export const getPadPlainText = (pad: { getInternalRevisionAText: (arg0: any) => 
   return pieces.join('');
 };
 export type LineModel = {
-  [id:string]:string|number|LineModel
-}
+  [id: string]: string | number | LineModel;
+};
 
-export const analyzeLine = (text:string, aline: string, apool: AttributePool) => {
+export const analyzeLine = (
+  text: string,
+  aline: string,
+  apool: AttributePool
+) => {
   const line: LineModel = {};
 
   // identify list
@@ -88,6 +107,5 @@ export const analyzeLine = (text:string, aline: string, apool: AttributePool) =>
   return line;
 };
 
-
-export const encodeWhitespace =
-  (s:string) => s.replace(/[^\x21-\x7E\s\t\n\r]/gu, (c) => `&#${c.codePointAt(0)};`);
+export const encodeWhitespace = (s: string) =>
+  s.replace(/[^\x21-\x7E\s\t\n\r]/gu, c => `&#${c.codePointAt(0)};`);

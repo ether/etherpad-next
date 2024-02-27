@@ -10,14 +10,12 @@ export const assert = (b: boolean, msg: string) => {
   if (!b) error(`Failed assertion: ${msg}`);
 };
 
-
-
 /**
  * This method is called whenever there is an error in the sync process.
  *
  * @param {string} msg - Just some message
  */
-export const error = (msg:string) => {
+export const error = (msg: string) => {
   const e = new Error(msg);
   // @ts-ignore
   e.easysync = true;
@@ -39,8 +37,8 @@ export const parseNum = (str: string): number => parseInt(str, 36);
  * @param {Op} [op2] - dest Op. If not given, a new Op is used.
  * @returns {Op} `op2`
  */
-export const copyOp= (op1: Op, op2: Op = new Op()): Op => Object.assign(op2, op1);
-
+export const copyOp = (op1: Op, op2: Op = new Op()): Op =>
+  Object.assign(op2, op1);
 
 /**
  * Cleans an Op object.
@@ -68,11 +66,19 @@ export const clearOp = (op: Op) => {
  * @yields {Op} One or two ops (depending on the presense of newlines) that cover the given text.
  * @returns {Generator<Op>}
  */
-export const opsFromText=  function* (opcode: '' | '=' | '+' | '-', text:string,
-                         attribs:Attribute[]|string = '', pool: AttributePool|null = null) {
+export const opsFromText = function* (
+  opcode: '' | '=' | '+' | '-',
+  text: string,
+  attribs: Attribute[] | string = '',
+  pool: AttributePool | null = null
+) {
   const op = new Op(opcode);
-  op.attribs = typeof attribs === 'string'
-    ? attribs : new AttributeMap(pool!).update(attribs || [], opcode === '+').toString();
+  op.attribs =
+    typeof attribs === 'string'
+      ? attribs
+      : new AttributeMap(pool!)
+          .update(attribs || [], opcode === '+')
+          .toString();
   const lastNewlinePos = text.lastIndexOf('\n');
   if (lastNewlinePos < 0) {
     op.chars = text.length;
@@ -89,10 +95,20 @@ export const opsFromText=  function* (opcode: '' | '=' | '+' | '-', text:string,
   }
 };
 
-
-export const  makeSplice = (orig: string, start: number, ndel: number, ins: string, attribs?: string, pool?: AttributePool) => {
-  if (start < 0) throw new RangeError(`start index must be non-negative (is ${start})`);
-  if (ndel < 0) throw new RangeError(`characters to delete must be non-negative (is ${ndel})`);
+export const makeSplice = (
+  orig: string,
+  start: number,
+  ndel: number,
+  ins: string,
+  attribs?: string,
+  pool?: AttributePool
+) => {
+  if (start < 0)
+    throw new RangeError(`start index must be non-negative (is ${start})`);
+  if (ndel < 0)
+    throw new RangeError(
+      `characters to delete must be non-negative (is ${ndel})`
+    );
   if (start > orig.length) start = orig.length;
   if (ndel > orig.length - start) ndel = orig.length - start;
   const deleted = orig.substring(start, start + ndel);
@@ -104,16 +120,21 @@ export const  makeSplice = (orig: string, start: number, ndel: number, ins: stri
   })();
   for (const op of ops) assem.append(op);
   assem.endDocument();
-  return ChangeSet.pack(orig.length, orig.length + ins.length - ndel, assem.toString(), ins);
+  return ChangeSet.pack(
+    orig.length,
+    orig.length + ins.length - ndel,
+    assem.toString(),
+    ins
+  );
 };
-
 
 /**
  * Generates a random String with the given length. Is needed to generate the Author, Group,
  * readonly, session Ids
  */
 export const randomString = (len: number) => {
-  const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+  const chars =
+    '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
   let randomstring = '';
   len = len || 20;
   for (let i = 0; i < len; i++) {
@@ -123,11 +144,12 @@ export const randomString = (len: number) => {
   return randomstring;
 };
 
-
-export const cleanText = (txt:string): string => txt.replace(/\r\n/g, '\n')
-  .replace(/\r/g, '\n')
-  .replace(/\t/g, '        ')
-  .replace(/\xa0/g, ' ');
+export const cleanText = (txt: string): string =>
+  txt
+    .replace(/\r\n/g, '\n')
+    .replace(/\r/g, '\n')
+    .replace(/\t/g, '        ')
+    .replace(/\xa0/g, ' ');
 
 /**
  * checks if a number is an int
@@ -135,8 +157,9 @@ export const cleanText = (txt:string): string => txt.replace(/\r\n/g, '\n')
  * @return {boolean} If the value is an integer
  */
 // @ts-ignore
-export const isInt = (value:number|string): boolean => (parseFloat(value) === parseInt(value)) && !isNaN(value);
-
+export const isInt = (value: number | string): boolean =>
+  // @ts-ignore
+parseFloat(value) === parseInt(value) && !isNaN(value);
 
 export const opsFromAText = function* (atext: AText) {
   // intentionally skips last newline char of atext
@@ -151,16 +174,16 @@ export const opsFromAText = function* (atext: AText) {
     lastOp.lines = 0;
     lastOp.chars--;
   } else {
-    const nextToLastNewlineEnd = atext.text.lastIndexOf('\n', atext.text.length - 2) + 1;
+    const nextToLastNewlineEnd =
+      atext.text.lastIndexOf('\n', atext.text.length - 2) + 1;
     const lastLineLength = atext.text.length - nextToLastNewlineEnd - 1;
     lastOp.lines--;
-    lastOp.chars -= (lastLineLength + 1);
+    lastOp.chars -= lastLineLength + 1;
     yield copyOp(lastOp);
     lastOp.lines = 0;
     lastOp.chars = lastLineLength;
   }
   if (lastOp.chars) yield lastOp;
 };
-
 
 export const numToString = (num: number) => num.toString(36).toLowerCase();

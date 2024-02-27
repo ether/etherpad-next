@@ -1,12 +1,11 @@
 'use strict';
 
-
 type ChatObject = {
-  authorId: string,
-  userId?: string,
-  userName?: string,
-  displayName?: string,
-}
+  authorId: string;
+  userId?: string;
+  userName?: string;
+  displayName?: string;
+};
 
 /**
  * Represents a chat message stored in the database and transmitted among users. Plugins can extend
@@ -19,15 +18,17 @@ class ChatMessage {
   authorId: string | null;
   private time: number | null;
   displayName: string | null;
-  static fromObject(obj: ChatObject):ChatMessage {
+  static fromObject(obj: ChatObject): ChatMessage {
     // The userId property was renamed to authorId, and userName was renamed to displayName. Accept
     // the old names in case the db record was written by an older version of Etherpad.
-    obj = {...obj} as ChatObject; // Don't mutate the caller's object.
-    if ('userId' in obj && !('authorId' in obj)) { // @ts-ignore
+    obj = { ...obj } as ChatObject; // Don't mutate the caller's object.
+    if ('userId' in obj && !('authorId' in obj)) {
+      // @ts-ignore
       obj.authorId = obj.userId;
     }
     delete obj.userId;
-    if ('userName' in obj && !('displayName' in obj)) obj.displayName = obj.userName;
+    if ('userName' in obj && !('displayName' in obj))
+      obj.displayName = obj.userName;
     delete obj.userName;
     return Object.assign(new ChatMessage(), obj);
   }
@@ -37,7 +38,11 @@ class ChatMessage {
    * @param {?string} [authorId] - Initial value of the `authorId` property.
    * @param {?number} [time] - Initial value of the `time` property.
    */
-  constructor(text: string | null = null, authorId: string | null = null, time: number | null = null) {
+  constructor(
+    text: string | null = null,
+    authorId: string | null = null,
+    time: number | null = null
+  ) {
     /**
      * The raw text of the user's chat message (before any rendering or processing).
      *

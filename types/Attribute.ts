@@ -1,1 +1,1 @@
-export type Attribute = [string,string|boolean]
+export type Attribute = [string, string | boolean];

@@ -23,7 +23,7 @@ describe(__filename, function () {
 
   beforeAll(async function () {
     backups.defaultPadText = settings.defaultPadText;
-    await initDatabase();
+    await initDatabase(settings);
   });
 
   beforeEach(async function () {

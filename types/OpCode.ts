@@ -1,1 +1,1 @@
-export type OpCode = ('' | '=' | '+' | '-')
+export type OpCode = '' | '=' | '+' | '-';

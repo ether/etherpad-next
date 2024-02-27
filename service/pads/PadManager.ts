@@ -1,8 +1,8 @@
 import { db } from '@/backend/DB';
 import CustomError from '@/utils/service/CustomError';
 import { Pad } from '@/service/pads/Pad';
-import { settings } from '@/backend/exportedVars';
 import { cleanText } from '@/utils/service/utilFuncs';
+import { settingsLoaded } from '@/server';
 
 class GlobalPads {
   private loadedPads: Map<string, Pad>;
@@ -10,19 +10,16 @@ class GlobalPads {
   constructor() {
     this.loadedPads = new Map();
   }
-  get(name: string)
-  {
+  get(name: string) {
     return this.loadedPads.get(`:${name}`);
   }
-  set(name: string, value: any)
-  {
-    this.loadedPads.set(`:${name}`,value);
+  set(name: string, value: any) {
+    this.loadedPads.set(`:${name}`, value);
   }
   remove(name: string) {
     this.loadedPads.delete(`:${name}`);
   }
 }
-
 
 const globalPadCache = new GlobalPads();
 
@@ -56,7 +53,7 @@ export class PadManager {
   listAllPads = async () => {
     const padIDs = await this.getPads();
 
-    return {padIDs};
+    return { padIDs };
   };
 
   addPad(name: string) {
@@ -71,7 +68,11 @@ export class PadManager {
     this._cachedList = null;
   }
 
-  getPad = async (id: string, text?: string|null|object, authorId:string = '') => {
+  getPad = async (
+    id: string,
+    text?: string | null | object,
+    authorId: string = ''
+  ) => {
     // check if this is a valid padId
     if (!this.isValidPadId(id)) {
       throw new CustomError(`${id} is not a valid padId`, 'apierror');
@@ -117,7 +118,6 @@ export class PadManager {
     [/:+/g, '_'],
   ];
 
-
   // returns a sanitized padId, respecting legacy pad id formats
   sanitizePadId = async (padId: string) => {
     for (let i = 0, n = this.padIdTransforms.length; i < n; ++i) {
@@ -133,25 +133,24 @@ export class PadManager {
       padId = padId.replace(from, to);
     }
 
-    if (settings.lowerCasePadIds) padId = padId.toLowerCase();
+    if (settingsLoaded.lowerCasePadIds) padId = padId.toLowerCase();
 
     // we're out of possible transformations, so just return it
     return padId;
   };
 
+  isValidPadId = (padId: string) =>
+    /^(g.[a-zA-Z0-9]{16}\$)?[^$]{1,50}$/.test(padId);
 
-  isValidPadId = (padId: string) => /^(g.[a-zA-Z0-9]{16}\$)?[^$]{1,50}$/.test(padId);
-
-// removes a pad from the cache
+  // removes a pad from the cache
   unloadPad = (padId: string) => {
     globalPadCache.remove(padId);
   };
 
   doesPadExist = async (padId: string) => {
     const value = await db!.get(`pad:${padId}`);
-    return (value != null && value.atext);
+    return value != null && value.atext;
   };
 }
-
 
 export const padManagerInstance = new PadManager();

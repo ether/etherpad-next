@@ -12,10 +12,10 @@ export type SettingsObj = {
   ssl:
     | false
     | {
-    key: string;
-    cert: string;
-    ca: string[];
-  };
+        key: string;
+        cert: string;
+        ca: string[];
+      };
   socketTransportProtocols: string[];
   socketIo: {
     maxHttpBufferSize: number;

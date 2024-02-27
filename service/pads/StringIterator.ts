@@ -6,7 +6,7 @@ export class StringIterator {
   private str: string;
   constructor(stringToIterate: string) {
     this.curIndex = 0;
-    this.newLines  = stringToIterate.split('\n').length - 1;
+    this.newLines = stringToIterate.split('\n').length - 1;
     this.str = stringToIterate;
   }
 
@@ -16,7 +16,7 @@ export class StringIterator {
     return this.newLines;
   }
 
-  take = (n:number) => {
+  take = (n: number) => {
     this.assertRemaining(n);
     const s = this.str.substr(this.curIndex, n);
     this.newLines -= s.split('\n').length - 1;
@@ -24,7 +24,7 @@ export class StringIterator {
     return s;
   };
 
-  peek= (n: number) => {
+  peek = (n: number) => {
     this.assertRemaining(n);
     return this.str.substr(this.curIndex, n);
   };

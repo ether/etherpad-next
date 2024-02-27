@@ -1,9 +1,9 @@
-import {Database} from 'ueberdb2';
-import {settings} from './exportedVars';
+import { Database } from 'ueberdb2';
+import { SettingsObj } from '@/types/SettingsObject';
 
-export let db: Database|null= null;
-export const initDatabase = async () => {
-  db = new Database(settings.dbType, settings.dbSettings, null, console);
+export let db: Database | null = null;
+export const initDatabase = async (settingsLoaded: SettingsObj) => {
+  db = new Database(settingsLoaded.dbType, settingsLoaded.dbSettings, null, console);
   await db.init();
 
   return db;

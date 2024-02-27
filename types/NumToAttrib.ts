@@ -1,3 +1,3 @@
-export type NumToAttrib =  {
-  [key: number]: any
-}
+export type NumToAttrib = {
+  [key: number]: any;
+};

@@ -11,7 +11,11 @@ class Stream {
    * @returns {Stream} A Stream that yields values in the half-open range [start, end).
    */
   static range(start: number, end: number) {
-    return new Stream((function* () { for (let i = start; i < end; ++i) yield i; })());
+    return new Stream(
+      (function* () {
+        for (let i = start; i < end; ++i) yield i;
+      })()
+    );
   }
 
   /**
@@ -55,21 +59,23 @@ class Stream {
    * @returns {Stream} A new Stream that gets its values from this Stream.
    */
   batch(size: number) {
-    return new Stream((function* () {
-      const b = [];
-      try {
-        // @ts-ignore
-        for (const v of this) {
-          Promise.resolve(v).catch(() => {}); // Suppress unhandled rejection errors.
-          b.push(v);
-          if (b.length < size) continue;
+    return new Stream(
+      function* () {
+        const b = [];
+        try {
+          // @ts-ignore
+          for (const v of this) {
+            Promise.resolve(v).catch(() => {}); // Suppress unhandled rejection errors.
+            b.push(v);
+            if (b.length < size) continue;
+            while (b.length) yield b.shift();
+          }
           while (b.length) yield b.shift();
+        } finally {
+          for (const v of b) Promise.resolve(v).then(() => {}); // Un-suppress unhandled rejections.
         }
-        while (b.length) yield b.shift();
-      } finally {
-        for (const v of b) Promise.resolve(v).then(() => {}); // Un-suppress unhandled rejections.
-      }
-    }).call(this));
+      }.call(this)
+    );
   }
 
   /**
@@ -104,21 +110,23 @@ class Stream {
    * @returns {Stream} A new Stream that gets its values from this Stream.
    */
   buffer(capacity: number) {
-    return new Stream((function* () {
-      const b = [];
-      try {
-        // @ts-ignore
-        for (const v of this) {
-          Promise.resolve(v).catch(() => {}); // Suppress unhandled rejection errors.
-          // Note: V8 has good Array push+shift optimization.
-          while (b.length >= capacity) yield b.shift();
-          b.push(v);
+    return new Stream(
+      function* () {
+        const b = [];
+        try {
+          // @ts-ignore
+          for (const v of this) {
+            Promise.resolve(v).catch(() => {}); // Suppress unhandled rejection errors.
+            // Note: V8 has good Array push+shift optimization.
+            while (b.length >= capacity) yield b.shift();
+            b.push(v);
+          }
+          while (b.length) yield b.shift();
+        } finally {
+          for (const v of b) Promise.resolve(v).then(() => {}); // Un-suppress unhandled rejections.
         }
-        while (b.length) yield b.shift();
-      } finally {
-        for (const v of b) Promise.resolve(v).then(() => {}); // Un-suppress unhandled rejections.
-      }
-    }).call(this));
+      }.call(this)
+    );
   }
 
   /**
@@ -127,13 +135,21 @@ class Stream {
    * @param {(v: any) => any} fn - Value transformation function.
    * @returns {Stream} A new Stream that yields this Stream's values, transformed by `fn`.
    */
-  map(fn:Function) { return new Stream((function* () { // @ts-ignore
-    for (const v of this) yield fn(v); }).call(this)); }
+  map(fn: Function) {
+    return new Stream(
+      function* () {
+        // @ts-ignore
+        for (const v of this) yield fn(v);
+      }.call(this)
+    );
+  }
 
   /**
    * Implements the JavaScript iterable protocol.
    */
-  [Symbol.iterator]() { return this._iter; }
+  [Symbol.iterator]() {
+    return this._iter;
+  }
 }
 
 export default Stream;

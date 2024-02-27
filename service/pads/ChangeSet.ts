@@ -15,13 +15,11 @@ import { OpCode } from '@/types/OpCode';
 import { Op } from '@/service/pads/Operation';
 import { MergingOpAssembler } from '@/service/pads/MergingOpAssembler';
 
-
 export class ChangeSet {
   static applyToAText = (cs: string, atext: AText, pool: AttributePool) => ({
     text: this.applyToText(cs, atext.text),
     attribs: this.applyToAttribution(cs, atext.attribs, pool),
   });
-
 
   /**
    * Applies a Changeset to the attribs string of a AText.
@@ -31,11 +29,16 @@ export class ChangeSet {
    * @param {AttributePool} pool - the attibutes pool
    * @returns {string}
    */
-  static applyToAttribution = (cs: string, astr: string, pool:AttributePool) => {
+  static applyToAttribution = (
+    cs: string,
+    astr: string,
+    pool: AttributePool
+  ) => {
     const unpacked = this.unpack(cs);
-    return this.applyZip(astr, unpacked.ops, (op1: Op, op2:Op) => this.slicerZipperFunc(op1, op2, pool));
+    return this.applyZip(astr, unpacked.ops, (op1: Op, op2: Op) =>
+      this.slicerZipperFunc(op1, op2, pool)
+    );
   };
-
 
   /**
    * Composes two attribute strings (see below) into one.
@@ -46,7 +49,12 @@ export class ChangeSet {
    * @param {AttributePool} pool - attribute pool
    * @returns {string}
    */
-  static composeAttributes = (att1: string, att2: string, resultIsMutation: boolean, pool?: AttributePool): string => {
+  static composeAttributes = (
+    att1: string,
+    att2: string,
+    resultIsMutation: boolean,
+    pool?: AttributePool
+  ): string => {
     // att1 and att2 are strings like "*3*f*1c", asMutation is a boolean.
     // Sometimes attribute (key,value) pairs are treated as attribute presence
     // information, while other times they are treated as operations that
@@ -60,7 +68,7 @@ export class ChangeSet {
     // ([(bold, true)], [(bold, )], true) -> [(bold, )]
     // ([(bold, true)], [(bold, )], false) -> []
     // pool can be null if att2 has no attributes.
-    if ((!att1) && resultIsMutation) {
+    if (!att1 && resultIsMutation) {
       // In the case of a mutation (i.e. composing two exportss),
       // an att2 composed with an empy att1 is just att2.  If att1
       // is part of an attribution string, then att2 may remove
@@ -68,9 +76,10 @@ export class ChangeSet {
       return att2;
     }
     if (!att2) return att1;
-    return AttributeMap.fromString(att1, pool!).updateFromString(att2, !resultIsMutation).toString();
+    return AttributeMap.fromString(att1, pool!)
+      .updateFromString(att2, !resultIsMutation)
+      .toString();
   };
-
 
   /**
    * Function used as parameter for applyZip to apply a Changeset to an attribute.
@@ -81,7 +90,11 @@ export class ChangeSet {
    * @param {AttributePool} pool - Can be null if definitely not needed.
    * @returns {Op} The result of applying `csOp` to `attOp`.
    */
-  static slicerZipperFunc= (attOp:Op, csOp:Op, pool:AttributePool|null): Op => {
+  static slicerZipperFunc = (
+    attOp: Op,
+    csOp: Op,
+    pool: AttributePool | null
+  ): Op => {
     const opOut = new Op();
     if (!attOp.opcode) {
       copyOp(csOp, opOut);
@@ -97,16 +110,28 @@ export class ChangeSet {
       csOp.opcode = '';
     } else {
       for (const op of [attOp, csOp]) {
-        assert(op.chars >= op.lines, `op has more newlines than chars: ${op.toString()}`);
+        assert(
+          op.chars >= op.lines,
+          `op has more newlines than chars: ${op.toString()}`
+        );
       }
       assert(
-        attOp.chars < csOp.chars ? attOp.lines <= csOp.lines
-          : attOp.chars > csOp.chars ? attOp.lines >= csOp.lines
+        attOp.chars < csOp.chars
+          ? attOp.lines <= csOp.lines
+          : attOp.chars > csOp.chars
+            ? attOp.lines >= csOp.lines
             : attOp.lines === csOp.lines,
         'line count mismatch when composing changesets A*B; ' +
-        `opA: ${attOp.toString()} opB: ${csOp.toString()}`);
-      assert(['+', '='].includes(attOp.opcode), `unexpected opcode in op: ${attOp.toString()}`);
-      assert(['-', '='].includes(csOp.opcode), `unexpected opcode in op: ${csOp.toString()}`);
+          `opA: ${attOp.toString()} opB: ${csOp.toString()}`
+      );
+      assert(
+        ['+', '='].includes(attOp.opcode),
+        `unexpected opcode in op: ${attOp.toString()}`
+      );
+      assert(
+        ['-', '='].includes(csOp.opcode),
+        `unexpected opcode in op: ${csOp.toString()}`
+      );
       // @ts-ignore
       opOut.opcode = {
         '+': {
@@ -118,15 +143,23 @@ export class ChangeSet {
           '=': '=',
         },
       }[attOp.opcode][csOp.opcode];
-      const [fullyConsumedOp, partiallyConsumedOp] = [attOp, csOp].sort((a, b) => a.chars - b.chars);
+      const [fullyConsumedOp, partiallyConsumedOp] = [attOp, csOp].sort(
+        (a, b) => a.chars - b.chars
+      );
       opOut.chars = fullyConsumedOp.chars;
       opOut.lines = fullyConsumedOp.lines;
-      opOut.attribs = csOp.opcode === '-'
-        // csOp is a remove op and remove ops normally never have any attributes, so this should
-        // normally be the empty string. However, padDiff.js adds attributes to remove ops and needs
-        // them preserved so they are copied here.
-        ? csOp.attribs
-        : this.composeAttributes(attOp.attribs, csOp.attribs, attOp.opcode === '=', pool!);
+      opOut.attribs =
+        csOp.opcode === '-'
+          ? // csOp is a remove op and remove ops normally never have any attributes, so this should
+            // normally be the empty string. However, padDiff.js adds attributes to remove ops and needs
+            // them preserved so they are copied here.
+            csOp.attribs
+          : this.composeAttributes(
+              attOp.attribs,
+              csOp.attribs,
+              attOp.opcode === '=',
+              pool!
+            );
       partiallyConsumedOp.chars -= fullyConsumedOp.chars;
       partiallyConsumedOp.lines -= fullyConsumedOp.lines;
       if (!partiallyConsumedOp.chars) partiallyConsumedOp.opcode = '';
@@ -137,8 +170,10 @@ export class ChangeSet {
 
   pack = (oldLen: number, newLen: number, opsStr: string, bank: string) => {
     const lenDiff = newLen - oldLen;
-    const lenDiffStr = (lenDiff >= 0 ? `>${exports.numToString(lenDiff)}`
-      : `<${exports.numToString(-lenDiff)}`);
+    const lenDiffStr =
+      lenDiff >= 0
+        ? `>${exports.numToString(lenDiff)}`
+        : `<${exports.numToString(-lenDiff)}`;
     const a = [];
     a.push('Z:', exports.numToString(oldLen), lenDiffStr, opsStr, '$', bank);
     return a.join('');
@@ -192,7 +227,6 @@ export class ChangeSet {
    */
   static numToString = (num: number): string => num.toString(36).toLowerCase();
 
-
   /**
    * Creates an encoded changeset.
    *
@@ -202,19 +236,25 @@ export class ChangeSet {
    * @param {string} bank - Characters for insert operations.
    * @returns {string} The encoded changeset.
    */
-  static pack = (oldLen: number, newLen: number, opsStr: string, bank: string) => {
+  static pack = (
+    oldLen: number,
+    newLen: number,
+    opsStr: string,
+    bank: string
+  ) => {
     const lenDiff = newLen - oldLen;
-    const lenDiffStr = (lenDiff >= 0 ? `>${this.numToString(lenDiff)}`
-      : `<${this.numToString(-lenDiff)}`);
+    const lenDiffStr =
+      lenDiff >= 0
+        ? `>${this.numToString(lenDiff)}`
+        : `<${this.numToString(-lenDiff)}`;
     const a = [];
     a.push('Z:', this.numToString(oldLen), lenDiffStr, opsStr, '$', bank);
     return a.join('');
   };
 
-
-  static makeAText = (text: string, attribs?:any) => ({
+  static makeAText = (text: string, attribs?: any) => ({
     text,
-    attribs: (attribs || this.makeAttribution(text)),
+    attribs: attribs || this.makeAttribution(text),
   });
 
   static makeAttribution = (text: string) => {
@@ -223,9 +263,6 @@ export class ChangeSet {
     return assem.toString();
   };
 
-
-
-
   /**
    * Applies a Changeset to a string.
    *
@@ -233,9 +270,12 @@ export class ChangeSet {
    * @param {string} str - String to which a Changeset should be applied
    * @returns {string}
    */
-  static applyToText = (cs: string, str:string): string => {
+  static applyToText = (cs: string, str: string): string => {
     const unpacked = this.unpack(cs);
-    assert(str.length === unpacked.oldLen, `mismatched apply: ${str.length} / ${unpacked.oldLen}`);
+    assert(
+      str.length === unpacked.oldLen,
+      `mismatched apply: ${str.length} / ${unpacked.oldLen}`
+    );
     const bankIter = new StringIterator(unpacked.charBank);
     const strIter = new StringIterator(str);
     const assem = new StringAssembler();
@@ -245,7 +285,9 @@ export class ChangeSet {
           // op is + and op.lines 0: no newlines must be in op.chars
           // op is + and op.lines >0: op.chars must include op.lines newlines
           if (op.lines !== bankIter.peek(op.chars).split('\n').length - 1) {
-            throw new Error(`newline count is wrong in op +; cs:${cs} and text:${str}`);
+            throw new Error(
+              `newline count is wrong in op +; cs:${cs} and text:${str}`
+            );
           }
           assem.append(bankIter.take(op.chars));
           break;
@@ -253,7 +295,9 @@ export class ChangeSet {
           // op is - and op.lines 0: no newlines must be in the deleted string
           // op is - and op.lines >0: op.lines newlines must be in the deleted string
           if (op.lines !== strIter.peek(op.chars).split('\n').length - 1) {
-            throw new Error(`newline count is wrong in op -; cs:${cs} and text:${str}`);
+            throw new Error(
+              `newline count is wrong in op -; cs:${cs} and text:${str}`
+            );
           }
           strIter.skip(op.chars);
           break;
@@ -261,7 +305,9 @@ export class ChangeSet {
           // op is = and op.lines 0: no newlines must be in the copied string
           // op is = and op.lines >0: op.lines newlines must be in the copied string
           if (op.lines !== strIter.peek(op.chars).split('\n').length - 1) {
-            throw new Error(`newline count is wrong in op =; cs:${cs} and text:${str}`);
+            throw new Error(
+              `newline count is wrong in op =; cs:${cs} and text:${str}`
+            );
           }
           assem.append(strIter.take(op.chars));
           break;
@@ -271,14 +317,12 @@ export class ChangeSet {
     return assem.toString();
   };
 
-
-
-  static unpack= (cs: string) => {
+  static unpack = (cs: string) => {
     const headerRegex = /Z:([0-9a-z]+)([><])([0-9a-z]+)|/;
     const headerMatch = headerRegex.exec(cs);
-    if ((!headerMatch) || (!headerMatch[0])) error(`Not a changeset: ${cs}`);
+    if (!headerMatch || !headerMatch[0]) error(`Not a changeset: ${cs}`);
     const oldLen = parseNum(headerMatch![1]);
-    const changeSign = (headerMatch![2] === '>') ? 1 : -1;
+    const changeSign = headerMatch![2] === '>' ? 1 : -1;
     const changeMag = parseNum(headerMatch![3]);
     const newLen = oldLen + changeSign * changeMag;
     const opsStart = headerMatch![0].length;
@@ -291,8 +335,6 @@ export class ChangeSet {
       charBank: cs.substring(opsEnd + 1),
     };
   };
-
-
 
   /**
    * Parses a string of serialized changeset operations.
@@ -307,7 +349,8 @@ export class ChangeSet {
     let match;
     while ((match = regex.exec(ops)) != null) {
       if (match[5] === '$') return; // Start of the insert operation character bank.
-      if (match[5] != null) error(`invalid operation: ${ops.slice(regex.lastIndex - 1)}`);
+      if (match[5] != null)
+        error(`invalid operation: ${ops.slice(regex.lastIndex - 1)}`);
       const op = new Op(match[3] as '' | '=' | '+' | '-');
       op.lines = parseNum(match[2] || '0');
       op.chars = parseNum(match[4]);
@@ -322,11 +365,10 @@ export class ChangeSet {
    * @param {AText} atext1 -
    * @param {AText} atext2 -
    */
-  static copyAText = (atext1:AText, atext2: AText) => {
+  static copyAText = (atext1: AText, atext2: AText) => {
     atext2.text = atext1.text;
     atext2.attribs = atext1.attribs;
   };
-
 
   static checkRep = (cs: string) => {
     const unpacked = this.unpack(cs);
@@ -348,35 +390,55 @@ export class ChangeSet {
           oldPos += o.chars;
           assert(oldPos <= oldLen, `${oldPos} > ${oldLen} in ${cs}`);
           break;
-        case '+':
-        {
-          assert(charBank.length >= o.chars, 'Invalid changeset: not enough chars in charBank');
+        case '+': {
+          assert(
+            charBank.length >= o.chars,
+            'Invalid changeset: not enough chars in charBank'
+          );
           const chars = charBank.slice(0, o.chars);
           const nlines = (chars.match(/\n/g) || []).length;
-          assert(nlines === o.lines,
-            'Invalid changeset: number of newlines in insert op does not match the charBank');
-          assert(o.lines === 0 || chars.endsWith('\n'),
-            'Invalid changeset: multiline insert op does not end with a newline');
+          assert(
+            nlines === o.lines,
+            'Invalid changeset: number of newlines in insert op does not match the charBank'
+          );
+          assert(
+            o.lines === 0 || chars.endsWith('\n'),
+            'Invalid changeset: multiline insert op does not end with a newline'
+          );
           charBank = charBank.slice(o.chars);
           calcNewLen += o.chars;
           assert(calcNewLen <= newLen, `${calcNewLen} > ${newLen} in ${cs}`);
           break;
         }
         default:
-          assert(false, `Invalid changeset: Unknown opcode: ${JSON.stringify(o.opcode)}`);
+          assert(
+            false,
+            `Invalid changeset: Unknown opcode: ${JSON.stringify(o.opcode)}`
+          );
       }
       assem.append(o);
     }
     calcNewLen += oldLen - oldPos;
-    assert(calcNewLen === newLen, 'Invalid changeset: claimed length does not match actual length');
-    assert(charBank === '', 'Invalid changeset: excess characters in the charBank');
+    assert(
+      calcNewLen === newLen,
+      'Invalid changeset: claimed length does not match actual length'
+    );
+    assert(
+      charBank === '',
+      'Invalid changeset: excess characters in the charBank'
+    );
     assem.endDocument();
-    const normalized = exports.pack(oldLen, calcNewLen, assem.toString(), unpacked.charBank);
+    const normalized = exports.pack(
+      oldLen,
+      calcNewLen,
+      assem.toString(),
+      unpacked.charBank
+    );
     assert(normalized === cs, 'Invalid changeset: not in canonical form');
     return cs;
   };
 
-  static splitAttributionLines= (attrOps: string, text: string) => {
+  static splitAttributionLines = (attrOps: string, text: string) => {
     const assem = new MergingOpAssembler();
     const lines: string[] = [];
     let pos = 0;
@@ -429,8 +491,13 @@ export class ChangeSet {
           attOp = attOpsNext.value!;
           attOpsNext = attOps.next();
         }
-        if (csOp.opcode && attOp.opcode && csOp.chars >= attOp.chars &&
-          attOp.lines > 0 && csOp.lines <= 0) {
+        if (
+          csOp.opcode &&
+          attOp.opcode &&
+          csOp.chars >= attOp.chars &&
+          attOp.lines > 0 &&
+          csOp.lines <= 0
+        ) {
           csOp.lines++;
         }
         const opOut = ChangeSet.slicerZipperFunc(attOp, csOp, null);
@@ -459,7 +526,4 @@ export class ChangeSet {
 
     return assem.toString();
   };
-
-
-
 }

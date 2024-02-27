@@ -7,8 +7,12 @@ const alphabet = 'abcdefghijklmnopqrstuvwxyz';
  * @param {string} [charset] - Characters to pick from.
  * @returns {string}
  */
-export const randomString = (len: number = 10, charset: string = `${alphabet}${alphabet.toUpperCase()}0123456789`): string => {
+export const randomString = (
+  len: number = 10,
+  charset: string = `${alphabet}${alphabet.toUpperCase()}0123456789`
+): string => {
   let ret = '';
-  while (ret.length < len) ret += charset[Math.floor(Math.random() * charset.length)];
+  while (ret.length < len)
+    ret += charset[Math.floor(Math.random() * charset.length)];
   return ret;
 };

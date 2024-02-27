@@ -5,7 +5,7 @@ class CustomError extends Error {
    * @param {string} [name='Error'] a custom name for the error object
    * @memberof CustomError
    */
-  constructor(message:string, name: string = 'Error') {
+  constructor(message: string, name: string = 'Error') {
     super(message);
     this.name = name;
     Error.captureStackTrace(this, this.constructor);

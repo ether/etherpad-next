@@ -4,12 +4,14 @@ import { ChangeSet } from '@/service/pads/ChangeSet';
 import { AttributePool } from '@/service/pads/AttributePool';
 import {
   cleanText,
-  makeSplice, opsFromAText,
+  makeSplice,
+  opsFromAText,
   randomString,
 } from '@/utils/service/utilFuncs';
 import {
   addPad,
-  getAuthorColorId, getAuthorName,
+  getAuthorColorId,
+  getAuthorName,
   getColorPalette,
   removePad,
 } from '@/service/pads/AuthorManager';
@@ -24,10 +26,9 @@ import { getReadOnlyId } from '@/service/pads/ReadOnlyManager';
 import { AttributeMap } from '@/service/pads/AttributeMap';
 import { doesGroupExist } from '@/service/pads/GroupManager';
 import { SmartOpAssembler } from '@/service/pads/SmartOpAssembler';
-import { settings } from '@/backend/exportedVars';
 import { EVENT_EMITTER, PLUGIN_HOOKS_INSTANCE } from '@/hooks/Hook';
 import { padDefaultContent, padLoaded } from '@/hooks/constants';
-
+import { settingsLoaded } from '@/server';
 
 export class Pad {
   private db: any;
@@ -39,7 +40,7 @@ export class Pad {
   private id: string;
   private savedRevisions: any[];
 
-  constructor(id: string, database= db) {
+  constructor(id: string, database = db) {
     this.db = database;
     this.atext = ChangeSet.makeAText('\n');
     this.pool = new AttributePool();
@@ -50,22 +51,28 @@ export class Pad {
     this.savedRevisions = [];
   }
 
-
-  async init(text:string, authorId = '') {
+  async init(text: string, authorId = '') {
     // try to load the pad
     const value = await this.db.get(`pad:${this.id}`);
 
     // if this pad exists, load it
     if (value != null) {
       Object.assign(this, value);
-      if ('pool' in value) this.pool = new AttributePool().fromJsonable(value.pool);
+      if ('pool' in value)
+        this.pool = new AttributePool().fromJsonable(value.pool);
     } else {
       if (text == null) {
-        const context = {pad: this, authorId, type: 'text', content: settings.defaultPadText};
+        const context = {
+          pad: this,
+          authorId,
+          type: 'text',
+          content: settingsLoaded.defaultPadText,
+        };
         EVENT_EMITTER.emit(padDefaultContent, context);
         PLUGIN_HOOKS_INSTANCE.callHook(padDefaultContent, context);
 
-        if (context.type !== 'text') throw new Error(`unsupported content type: ${context.type}`);
+        if (context.type !== 'text')
+          throw new Error(`unsupported content type: ${context.type}`);
         text = cleanText(context.content);
       }
       const firstChangeset = makeSplice('\n', 0, 0, text);
@@ -101,9 +108,12 @@ export class Pad {
   }
 
   async appendRevision(aChangeset: string, authorId = '') {
-    const newAText = ChangeSet.applyToAText(aChangeset,this.atext, this.pool);
-    if (newAText.text === this.atext.text && newAText.attribs === this.atext.attribs &&
-      this.head !== -1) {
+    const newAText = ChangeSet.applyToAText(aChangeset, this.atext, this.pool);
+    if (
+      newAText.text === this.atext.text &&
+      newAText.attribs === this.atext.attribs &&
+      this.head !== -1
+    ) {
       return this.head;
     }
     ChangeSet.copyAText(newAText, this.atext);
@@ -120,10 +130,12 @@ export class Pad {
         meta: {
           author: authorId,
           timestamp: Date.now(),
-          ...newRev === this.getKeyRevisionNumber(newRev) ? {
-            pool: this.pool,
-            atext: this.atext,
-          } : {},
+          ...(newRev === this.getKeyRevisionNumber(newRev)
+            ? {
+                pool: this.pool,
+                atext: this.atext,
+              }
+            : {}),
         },
       }),
       this.saveToDatabase(),
@@ -149,7 +161,7 @@ export class Pad {
   }
 
   toJSON() {
-    const o:Pad = {...this, pool: this.pool.toJsonable()};
+    const o: Pad = { ...this, pool: this.pool.toJsonable() };
     // @ts-ignore
     delete o.db;
     // @ts-ignore
@@ -164,12 +176,18 @@ export class Pad {
 
   async getRevisionAuthor(revNum: number) {
     // @ts-ignore
-    return await this.db.getSub(`pad:${this.id}:revs:${revNum}`, ['meta', 'author']);
+    return await this.db.getSub(`pad:${this.id}:revs:${revNum}`, [
+      'meta',
+      'author',
+    ]);
   }
 
   async getRevisionDate(revNum: number) {
     // @ts-ignore
-    return await this.db.getSub(`pad:${this.id}:revs:${revNum}`, ['meta', 'timestamp']);
+    return await this.db.getSub(`pad:${this.id}:revs:${revNum}`, [
+      'meta',
+      'timestamp',
+    ]);
   }
 
   /**
@@ -178,7 +196,10 @@ export class Pad {
    */
   async _getKeyRevisionAText(revNum: number) {
     // @ts-ignore
-    return await this.db.getSub(`pad:${this.id}:revs:${revNum}`, ['meta', 'atext']);
+    return await this.db.getSub(`pad:${this.id}:revs:${revNum}`, [
+      'meta',
+      'atext',
+    ]);
   }
 
   /**
@@ -189,7 +210,10 @@ export class Pad {
     const authorIds = [];
 
     for (const key in this.pool.numToAttrib) {
-      if (this.pool.numToAttrib[key][0] === 'author' && this.pool.numToAttrib[key][1] !== '') {
+      if (
+        this.pool.numToAttrib[key][0] === 'author' &&
+        this.pool.numToAttrib[key][1] !== ''
+      ) {
         authorIds.push(this.pool.numToAttrib[key][1]);
       }
     }
@@ -204,11 +228,15 @@ export class Pad {
     const [keyAText, changesets] = await Promise.all([
       this._getKeyRevisionAText(keyRev),
       Promise.all(
-        Stream.range(keyRev + 1, targetRev + 1).map(this.getRevisionChangeset.bind(this))),
+        Stream.range(keyRev + 1, targetRev + 1).map(
+          this.getRevisionChangeset.bind(this)
+        )
+      ),
     ]);
     const apool = this.apool;
     let atext = keyAText;
-    for (const cs of changesets) atext = ChangeSet.applyToAText(cs, atext, apool);
+    for (const cs of changesets)
+      atext = ChangeSet.applyToAText(cs, atext, apool);
     return atext;
   }
 
@@ -218,19 +246,22 @@ export class Pad {
 
   async getAllAuthorColors() {
     const authorIds = this.getAllAuthors();
-    const returnTable:MapArrayType<any> = {};
+    const returnTable: MapArrayType<any> = {};
     const colorPalette = getColorPalette();
 
     await Promise.all(
-      authorIds.map((authorId) => getAuthorColorId(authorId).then((colorId:number) => {
-        // colorId might be a hex color or an number out of the palette
-        returnTable[authorId] = colorPalette[colorId] || colorId;
-      })));
+      authorIds.map(authorId =>
+        getAuthorColorId(authorId).then((colorId: number) => {
+          // colorId might be a hex color or an number out of the palette
+          returnTable[authorId] = colorPalette[colorId] || colorId;
+        })
+      )
+    );
 
     return returnTable;
   }
 
-  getValidRevisionRange(startRev: any, endRev:any) {
+  getValidRevisionRange(startRev: any, endRev: any) {
     startRev = parseInt(startRev, 10);
     const head = this.headRevisionNumber;
     endRev = endRev ? parseInt(endRev, 10) : head;
@@ -246,7 +277,7 @@ export class Pad {
     }
 
     if (startRev != null && endRev != null) {
-      return {startRev, endRev};
+      return { startRev, endRev };
     }
     return null;
   }
@@ -269,12 +300,22 @@ export class Pad {
    * @param {string} ins - New text to insert at `start` (after the `ndel` characters are deleted).
    * @param {string} [authorId] - Author ID of the user making the change (if applicable).
    */
-  async spliceText(start:number, ndel:number, ins: string, authorId: string = '') {
-    if (start < 0) throw new RangeError(`start index must be non-negative (is ${start})`);
-    if (ndel < 0) throw new RangeError(`characters to delete must be non-negative (is ${ndel})`);
+  async spliceText(
+    start: number,
+    ndel: number,
+    ins: string,
+    authorId: string = ''
+  ) {
+    if (start < 0)
+      throw new RangeError(`start index must be non-negative (is ${start})`);
+    if (ndel < 0)
+      throw new RangeError(
+        `characters to delete must be non-negative (is ${ndel})`
+      );
     const orig = this.text();
     assert(orig.endsWith('\n'));
-    if (start + ndel > orig.length) throw new RangeError('start/delete past the end of the text');
+    if (start + ndel > orig.length)
+      throw new RangeError('start/delete past the end of the text');
     ins = cleanText(ins);
     const willEndWithNewline =
       start + ndel < orig.length || // Keeping last char (which is guaranteed to be a newline).
@@ -305,7 +346,7 @@ export class Pad {
    * @param {string} [authorId] - The author ID of the user that initiated the change, if
    *     applicable.
    */
-  async appendText(newText:string, authorId = '') {
+  async appendText(newText: string, authorId = '') {
     await this.spliceText(this.text().length - 1, 0, newText, authorId);
   }
 
@@ -319,15 +360,24 @@ export class Pad {
    * @param {?number} [time] - Message timestamp (milliseconds since epoch). Deprecated; use
    *     `msgOrText.time` instead.
    */
-  async appendChatMessage(msgOrText: string|ChatMessage, authorId = null, time = null) {
+  async appendChatMessage(
+    msgOrText: string | ChatMessage,
+    authorId = null,
+    time = null
+  ) {
     const msg =
-      msgOrText instanceof ChatMessage ? msgOrText : new ChatMessage(msgOrText, authorId, time);
+      msgOrText instanceof ChatMessage
+        ? msgOrText
+        : new ChatMessage(msgOrText, authorId, time);
     this.chatHead++;
     await Promise.all([
       // Don't save the display name in the database because the user can change it at any time. The
       // `displayName` property will be populated with the current value when the message is read
       // from the database.
-      this.db.set(`pad:${this.id}:chat:${this.chatHead}`, {...msg, displayName: undefined}),
+      this.db.set(`pad:${this.id}:chat:${this.chatHead}`, {
+        ...msg,
+        displayName: undefined,
+      }),
       this.saveToDatabase(),
     ]);
   }
@@ -352,14 +402,15 @@ export class Pad {
    *     interval as is typical in code.
    */
   async getChatMessages(start: number, end: number) {
-    const entries =
-      await Promise.all(Stream.range(start, end + 1).map(this.getChatMessage.bind(this)));
+    const entries = await Promise.all(
+      Stream.range(start, end + 1).map(this.getChatMessage.bind(this))
+    );
 
     // sort out broken chat entries
     // it looks like in happened in the past that the chat head was
     // incremented, but the chat message wasn't added
-    return entries.filter((entry) => {
-      const pass = (entry != null);
+    return entries.filter(entry => {
+      const pass = entry != null;
       if (!pass) {
         console.warn(`WARNING: Found broken chat entry in pad ${this.id}`);
       }
@@ -387,18 +438,21 @@ export class Pad {
       await db!.set(`pad:${destinationID}${keySuffix}`, val);
     };
 
-    const promises = (function* () {
+    const promises = function* () {
       yield copyRecord('');
       // @ts-ignore
-      yield* Stream.range(0, this.head + 1).map((i) => copyRecord(`:revs:${i}`));
+      yield* Stream.range(0, this.head + 1).map(i => copyRecord(`:revs:${i}`));
       // @ts-ignore
-      yield* Stream.range(0, this.chatHead + 1).map((i) => copyRecord(`:chat:${i}`));
+      yield* Stream.range(0, this.chatHead + 1).map(i =>
+        copyRecord(`:chat:${i}`)
+      );
       // @ts-ignore
       yield this.copyAuthorInfoToDestinationPad(destinationID);
-      if (destGroupID) { // @ts-ignore
+      if (destGroupID) {
+        // @ts-ignore
         yield db!.setSub(`group:${destGroupID}`, ['pads', destinationID], 1);
       }
-    }).call(this);
+    }.call(this);
     for (const p of new Stream(promises).batch(100).buffer(99)) await p;
 
     // Initialize the new pad (will update the listAllPads cache)
@@ -419,16 +473,21 @@ export class Pad {
       dstPad,
     });*/
 
-    return {padID: destinationID};
+    return { padID: destinationID };
   }
 
   async copyAuthorInfoToDestinationPad(destinationID: string) {
     // add the new sourcePad to all authors who contributed to the old one
-    await Promise.all(this.getAllAuthors().map(
-      (authorID) => addPad(authorID, destinationID)));
+    await Promise.all(
+      this.getAllAuthors().map(authorID => addPad(authorID, destinationID))
+    );
   }
 
-  async copyPadWithoutHistory(destinationID: string, force: string|boolean, authorId = '') {
+  async copyPadWithoutHistory(
+    destinationID: string,
+    force: string | boolean,
+    authorId = ''
+  ) {
     // flush the source pad
     await this.saveToDatabase();
 
@@ -447,7 +506,11 @@ export class Pad {
     }
 
     // initialize the pad with a new line to avoid getting the defaultText
-    const dstPad = await padManagerInstance.getPad(destinationID, '\n', authorId);
+    const dstPad = await padManagerInstance.getPad(
+      destinationID,
+      '\n',
+      authorId
+    );
     dstPad.pool = this.pool.clone();
 
     const oldAText = this.atext;
@@ -466,7 +529,12 @@ export class Pad {
 
     // create a changeset that removes the previous text and add the newText with
     // all atributes present on the source pad
-    const changeset = ChangeSet.pack(oldLength, newLength, assem.toString(), newText);
+    const changeset = ChangeSet.pack(
+      oldLength,
+      newLength,
+      assem.toString(),
+      newText
+    );
     await dstPad.appendRevision(changeset, authorId);
 
     /*await hooks.aCallAll('padCopy', {
@@ -483,11 +551,11 @@ export class Pad {
       dstPad,
     });*/
 
-    return {padID: destinationID};
+    return { padID: destinationID };
   }
 
   async checkIfGroupExistAndReturnIt(destinationID: string) {
-    let destGroupID:false|string = false;
+    let destGroupID: false | string = false;
 
     if (destinationID.indexOf('$') >= 0) {
       destGroupID = destinationID.split('$')[0];
@@ -495,7 +563,10 @@ export class Pad {
 
       // group does not exist
       if (!groupExists) {
-        throw new CustomError('groupID does not exist for destinationID', 'apierror');
+        throw new CustomError(
+          'groupID does not exist for destinationID',
+          'apierror'
+        );
       }
     }
     return destGroupID;
@@ -527,29 +598,35 @@ export class Pad {
     }
 
     // remove the readonly entries
-    p.push(getReadOnlyId(padID).then(async (readonlyID: string) => {
-      await db!.remove(`readonly2pad:${readonlyID}`);
-    }));
+    p.push(
+      getReadOnlyId(padID).then(async (readonlyID: string) => {
+        await db!.remove(`readonly2pad:${readonlyID}`);
+      })
+    );
     p.push(db!.remove(`pad2readonly:${padID}`));
 
     // delete all chat messages
-    p.push(timesLimit(this.chatHead + 1, 500, async (i: string) => {
-      await this.db.remove(`pad:${this.id}:chat:${i}`, null);
-    }));
+    p.push(
+      timesLimit(this.chatHead + 1, 500, async (i: string) => {
+        await this.db.remove(`pad:${this.id}:chat:${i}`, null);
+      })
+    );
 
     // delete all revisions
-    p.push(timesLimit(this.head + 1, 500, async (i: string) => {
-      await this.db.remove(`pad:${this.id}:revs:${i}`, null);
-    }));
+    p.push(
+      timesLimit(this.head + 1, 500, async (i: string) => {
+        await this.db.remove(`pad:${this.id}:revs:${i}`, null);
+      })
+    );
 
     // remove pad from all authors who contributed
-    this.getAllAuthors().forEach((authorId) => {
+    this.getAllAuthors().forEach(authorId => {
       p.push(removePad(authorId, padID));
     });
 
     // delete the pad entry and delete pad from padManager
     p.push(padManagerInstance.removePad(padID));
-    EVENT_EMITTER.emit('padRemove', {padID: this.id});
+    EVENT_EMITTER.emit('padRemove', { padID: this.id });
     await Promise.all(p);
   }
 
@@ -567,7 +644,7 @@ export class Pad {
     }
 
     // build the saved revision object
-    const savedRevision:MapArrayType<any> = {};
+    const savedRevision: MapArrayType<any> = {};
     savedRevision.revNum = revNum;
     savedRevision.savedById = savedById;
     savedRevision.label = label || `Revision ${revNum}`;
@@ -584,7 +661,7 @@ export class Pad {
   }
 
   getSavedRevisionsList() {
-    const savedRev = this.savedRevisions.map((rev) => rev.revNum);
+    const savedRev = this.savedRevisions.map(rev => rev.revNum);
     savedRev.sort((a, b) => a - b);
     return savedRev;
   }
@@ -636,7 +713,7 @@ export class Pad {
     pool.check();
 
     const authorIds = new Set();
-    pool.eachAttrib((k:string, v:string) => {
+    pool.eachAttrib((k: string, v: string) => {
       if (k === 'author' && v) authorIds.add(v);
     });
     const revs = Stream.range(0, head + 1)
@@ -651,14 +728,22 @@ export class Pad {
             isKeyRev,
             isKeyRev ? this._getKeyRevisionAText(r) : null,
           ]);
-        } catch (err:any) {
+        } catch (err: any) {
           err.message = `(pad ${this.id} revision ${r}) ${err.message}`;
           throw err;
         }
       })
-      .batch(100).buffer(99);
+      .batch(100)
+      .buffer(99);
     let atext = ChangeSet.makeAText('\n');
-    for await (const [r, changeset, authorId, timestamp, isKeyRev, keyAText] of revs) {
+    for await (const [
+      r,
+      changeset,
+      authorId,
+      timestamp,
+      isKeyRev,
+      keyAText,
+    ] of revs) {
       try {
         assert(authorId != null);
         assert.equal(typeof authorId, 'string');
@@ -680,11 +765,14 @@ export class Pad {
             if (op.lines > 0) assert(consumed.endsWith('\n'));
             text = text.slice(op.chars);
           }
-          assert.equal(op.attribs, AttributeMap.fromString(op.attribs, pool).toString());
+          assert.equal(
+            op.attribs,
+            AttributeMap.fromString(op.attribs, pool).toString()
+          );
         }
         atext = ChangeSet.applyToAText(changeset, atext, pool);
         if (isKeyRev) assert.deepEqual(keyAText, atext);
-      } catch (err:any) {
+      } catch (err: any) {
         err.message = `(pad ${this.id} revision ${r}) ${err.message}`;
         throw err;
       }
@@ -702,23 +790,27 @@ export class Pad {
           const msg = await this.getChatMessage(c);
           assert(msg != null);
           assert(msg instanceof ChatMessage);
-        } catch (err:any) {
+        } catch (err: any) {
           err.message = `(pad ${this.id} chat message ${c}) ${err.message}`;
           throw err;
         }
       })
-      .batch(100).buffer(99);
+      .batch(100)
+      .buffer(99);
     for (const p of chats) await p;
-    EVENT_EMITTER.emit('padCheck', {pad: this});
+    EVENT_EMITTER.emit('padCheck', { pad: this });
   }
 
-  async removePadIfForceIsTrueAndAlreadyExist(destinationID: string, force: boolean|string) {
+  async removePadIfForceIsTrueAndAlreadyExist(
+    destinationID: string,
+    force: boolean | string
+  ) {
     // if the pad exists, we should abort, unless forced.
     const exists = await padManagerInstance.doesPadExist(destinationID);
 
     // allow force to be a string
     if (typeof force === 'string') {
-      force = (force.toLowerCase() === 'true');
+      force = force.toLowerCase() === 'true';
     } else {
       force = !!force;
     }

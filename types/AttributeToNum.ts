@@ -1,3 +1,3 @@
 export type AttributeToNum = {
-  [key:string]: number
-}
+  [key: string]: number;
+};

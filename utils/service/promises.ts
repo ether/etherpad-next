@@ -6,7 +6,10 @@
 // `predicate`. Resolves to `undefined` if none of the Promises satisfy `predicate`, or if
 // `promises` is empty. If `predicate` is nullish, the truthiness of the resolved value is used as
 // the predicate.
-export const firstSatisfies = <T>(promises: Promise<T>[], predicate: null|Function)=> {
+export const firstSatisfies = <T>(
+  promises: Promise<T>[],
+  predicate: null | Function
+) => {
   if (predicate == null) {
     predicate = (x: any) => x;
   }
@@ -14,8 +17,12 @@ export const firstSatisfies = <T>(promises: Promise<T>[], predicate: null|Functi
   // Transform each original Promise into a Promise that never resolves if the original resolved
   // value does not satisfy `predicate`. These transformed Promises will be passed to Promise.race,
   // yielding the first resolved value that satisfies `predicate`.
-  const newPromises = promises.map((p) =>
-    new Promise((resolve, reject) => p.then((v) => predicate!(v) && resolve(v), reject)));
+  const newPromises = promises.map(
+    p =>
+      new Promise((resolve, reject) =>
+        p.then(v => predicate!(v) && resolve(v), reject)
+      )
+  );
 
   // If `promises` is an empty array or if none of them resolve to a value that satisfies
   // `predicate`, then `Promise.race(newPromises)` will never resolve. To handle that, add another
@@ -43,12 +50,18 @@ export const firstSatisfies = <T>(promises: Promise<T>[], predicate: null|Functi
 // `total` is greater than `concurrency`, then `concurrency` Promises will be created right away,
 // and each remaining Promise will be created once one of the earlier Promises resolves.) This async
 // function resolves once all `total` Promises have resolved.
-export const timesLimit = async (total: number, concurrency: number, promiseCreator: Function) => {
-  if (total > 0 && concurrency <= 0) throw new RangeError('concurrency must be positive');
+export const timesLimit = async (
+  total: number,
+  concurrency: number,
+  promiseCreator: Function
+) => {
+  if (total > 0 && concurrency <= 0)
+    throw new RangeError('concurrency must be positive');
   let next = 0;
-  const addAnother = () => promiseCreator(next++).finally(() => {
-    if (next < total) return addAnother();
-  });
+  const addAnother = () =>
+    promiseCreator(next++).finally(() => {
+      if (next < total) return addAnother();
+    });
   const promises = [];
   for (let i = 0; i < concurrency && i < total; i++) {
     promises.push(addAnother());
@@ -63,14 +76,16 @@ export const timesLimit = async (total: number, concurrency: number, promiseCrea
 class Gate<T> extends Promise<T> {
   // Coax `.then()` into returning an ordinary Promise, not a Gate. See
   // https://stackoverflow.com/a/65669070 for the rationale.
-  static get [Symbol.species]() { return Promise; }
+  static get [Symbol.species]() {
+    return Promise;
+  }
 
   constructor() {
     // `this` is assigned when `super()` returns, not when it is called, so it is not acceptable to
     // do the following because it will throw a ReferenceError when it dereferences `this`:
     //     super((resolve, reject) => Object.assign(this, {resolve, reject}));
     let props: any;
-    super((resolve, reject) => props = {resolve, reject});
+    super((resolve, reject) => (props = { resolve, reject }));
     Object.assign(this, props);
   }
 }

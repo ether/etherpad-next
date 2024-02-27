@@ -36,15 +36,17 @@ export const decodeAttribString = function* (str: string) {
   let match;
   while ((match = re.exec(str)) != null) {
     const [m, n] = match;
-    if (n == null) throw new Error(`invalid character in attribute string: ${m}`);
+    if (n == null)
+      throw new Error(`invalid character in attribute string: ${m}`);
     yield Number.parseInt(n, 36);
   }
 };
 
-const checkAttribNum = (n: number|object) => {
+const checkAttribNum = (n: number | object) => {
   if (typeof n !== 'number') throw new TypeError(`not a number: ${n}`);
   if (n < 0) throw new Error(`attribute number is negative: ${n}`);
-  if (n !== Math.trunc(n)) throw new Error(`attribute number is not an integer: ${n}`);
+  if (n !== Math.trunc(n))
+    throw new Error(`attribute number is not an integer: ${n}`);
 };
 
 /**
@@ -53,7 +55,7 @@ const checkAttribNum = (n: number|object) => {
  * @param {Iterable<number>} attribNums - Sequence of attribute numbers.
  * @returns {AttributeString}
  */
-export const encodeAttribString = (attribNums: Iterable<number>):string => {
+export const encodeAttribString = (attribNums: Iterable<number>): string => {
   let str = '';
   for (const n of attribNums) {
     checkAttribNum(n);
@@ -70,11 +72,15 @@ export const encodeAttribString = (attribNums: Iterable<number>):string => {
  * @yields {Attribute} The identified attributes, in the same order as `attribNums`.
  * @returns {Generator<Attribute>}
  */
-export const attribsFromNums = function* (attribNums: Iterable<number>, pool: AttributePool) {
+export const attribsFromNums = function* (
+  attribNums: Iterable<number>,
+  pool: AttributePool
+) {
   for (const n of attribNums) {
     checkAttribNum(n);
     const attrib = pool.getAttrib(n);
-    if (attrib == null) throw new Error(`attribute ${n} does not exist in pool`);
+    if (attrib == null)
+      throw new Error(`attribute ${n} does not exist in pool`);
     yield attrib;
   }
 };
@@ -90,7 +96,10 @@ export const attribsFromNums = function* (attribNums: Iterable<number>, pool: At
  * @yields {number} The attribute number of each attribute in `attribs`, in order.
  * @returns {Generator<number>}
  */
-export const attribsToNums = function* (attribs: Iterable<Attribute>, pool: AttributePool) {
+export const attribsToNums = function* (
+  attribs: Iterable<Attribute>,
+  pool: AttributePool
+) {
   for (const attrib of attribs) yield pool.putAttrib(attrib);
 };
 
@@ -119,8 +128,10 @@ export const attribsFromString = function* (str: string, pool: AttributePool) {
  * @param {AttributePool} pool - Attribute pool.
  * @returns {AttributeString}
  */
-export const attribsToString =
-  (attribs: Iterable<Attribute>, pool: AttributePool): string => encodeAttribString(attribsToNums(attribs, pool));
+export const attribsToString = (
+  attribs: Iterable<Attribute>,
+  pool: AttributePool
+): string => encodeAttribString(attribsToNums(attribs, pool));
 
 /**
  * Sorts the attributes in canonical order. The order of entries with the same attribute name is
@@ -129,4 +140,7 @@ export const attribsToString =
  * @param {Attribute[]} attribs - Attributes to sort in place.
  * @returns {Attribute[]} `attribs` (for chaining).
  */
-export const sort = (attribs: Attribute[]): Attribute[] => attribs.sort(([keyA], [keyB]) => (keyA > keyB ? 1 : 0) - (keyA < keyB ? 1 : 0));
+export const sort = (attribs: Attribute[]): Attribute[] =>
+  attribs.sort(
+    ([keyA], [keyB]) => (keyA > keyB ? 1 : 0) - (keyA < keyB ? 1 : 0)
+  );

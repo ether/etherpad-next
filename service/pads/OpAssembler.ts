@@ -1,4 +1,4 @@
-import {assert} from '@/utils/service/utilFuncs';
+import { assert } from '@/utils/service/utilFuncs';
 import { Op } from '@/service/pads/Operation';
 
 export class OpAssembler {
@@ -8,7 +8,7 @@ export class OpAssembler {
     this.serialized = '';
   }
 
-  append = (op: Op|object) => {
+  append = (op: Op | object) => {
     assert(op instanceof Op, 'argument must be an instance of Op');
     this.serialized += op.toString();
   };

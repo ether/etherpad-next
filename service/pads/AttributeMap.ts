@@ -84,7 +84,10 @@ export class AttributeMap extends Map {
    *     key is removed from this map (if present).
    * @returns {AttributeMap} `this` (for chaining).
    */
-  updateFromString(str: string, emptyValueIsDelete: boolean = false): AttributeMap {
+  updateFromString(
+    str: string,
+    emptyValueIsDelete: boolean = false
+  ): AttributeMap {
     return this.update(attribsFromString(str, this.pool), emptyValueIsDelete);
   }
 }

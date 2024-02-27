@@ -3,7 +3,7 @@
 import CustomError from '@/utils/service/CustomError';
 import { isInt } from '@/utils/service/utilFuncs';
 
-const checkValidRev = (rev: number|string) => {
+const checkValidRev = (rev: number | string) => {
   if (typeof rev !== 'number') {
     rev = parseInt(rev, 10);
   }

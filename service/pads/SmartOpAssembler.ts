@@ -58,10 +58,14 @@ export class SmartOpAssembler {
    * @param {?AttributePool} pool - Attribute pool. Only required if `attribs` is an iterable of
    *     attribute key, value pairs.
    */
-  appendOpWithText = (opcode: ('-'|'+'|'='), text: string, attribs: any, pool: any) => {
+  appendOpWithText = (
+    opcode: '-' | '+' | '=',
+    text: string,
+    attribs: any,
+    pool: any
+  ) => {
     for (const op of opsFromText(opcode, text, attribs, pool)) this.append(op);
   };
-
 
   toString = () => {
     this.flushPlusMinus();
@@ -72,7 +76,7 @@ export class SmartOpAssembler {
   clear = () => {
     this.minusAssem.clear();
     this.plusAssem.clear();
-    this. keepAssem.clear();
+    this.keepAssem.clear();
     this.assem.clear();
     this.lengthChange = 0;
   };
@@ -83,4 +87,3 @@ export class SmartOpAssembler {
 
   getLengthChange = () => this.lengthChange;
 }
-

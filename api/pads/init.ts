@@ -3,46 +3,48 @@ import { padManagerInstance } from '@/service/pads/PadManager';
 import CustomError from '@/utils/service/CustomError';
 import { createGroupPad } from '@/service/pads/GroupManager';
 
-
 const BASE_PATH = '/api/pads';
 const GROUP_PAD_PREFIX = '/api/groupPads';
 export const initPads = () => {
-  fastifyServer.get(BASE_PATH,{
-    schema: {
-      tags: ['pad'],
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            code: { type: 'number' },
-            data: {
-              type: 'object',
-              properties: {
-                pads: {
-                  type: 'array',
-                  items: {
-                    type: 'string',
+  fastifyServer.get(
+    BASE_PATH,
+    {
+      schema: {
+        tags: ['pad'],
+        response: {
+          200: {
+            type: 'object',
+            properties: {
+              code: { type: 'number' },
+              data: {
+                type: 'object',
+                properties: {
+                  pads: {
+                    type: 'array',
+                    items: {
+                      type: 'string',
+                    },
                   },
                 },
               },
+              message: { type: 'string' },
             },
-            message: { type: 'string' },
           },
         },
       },
     },
-  }, async (req,
-                                      res) => {
-    const pads = await padManagerInstance.listAllPads();
+    async (req, res) => {
+      const pads = await padManagerInstance.listAllPads();
 
-    return {
-      code: 0,
-      data: {
-        pads: pads,
-      },
-      message: 'ok',
-    };
-  });
+      return {
+        code: 0,
+        data: {
+          pads: pads,
+        },
+        message: 'ok',
+      };
+    }
+  );
 
   fastifyServer.post<{
     Body: {
@@ -50,197 +52,214 @@ export const initPads = () => {
       padName: string;
       text: string;
       authorId?: string;
-    }
-  }>(`${GROUP_PAD_PREFIX}`,{
-    schema: {
-      tags: ['pad'],
-      body: {
-        type: 'object',
-        properties: {
-          groupID: { type: 'string' },
-          padName: { type: 'string' },
-          text: { type: 'string' },
-          authorId: { type: 'string' },
-        },
-        required: ['groupID', 'padName', 'text'],
-      },
-      response: {
-        200: {
+    };
+  }>(
+    `${GROUP_PAD_PREFIX}`,
+    {
+      schema: {
+        tags: ['pad'],
+        body: {
           type: 'object',
           properties: {
-            code: { type: 'number' },
-            data: {
-              type: 'object',
-              properties: {
-                pad: {
-                  type: 'object',
-                  properties: {
-                    padID: { type: 'string' },
+            groupID: { type: 'string' },
+            padName: { type: 'string' },
+            text: { type: 'string' },
+            authorId: { type: 'string' },
+          },
+          required: ['groupID', 'padName', 'text'],
+        },
+        response: {
+          200: {
+            type: 'object',
+            properties: {
+              code: { type: 'number' },
+              data: {
+                type: 'object',
+                properties: {
+                  pad: {
+                    type: 'object',
+                    properties: {
+                      padID: { type: 'string' },
+                    },
                   },
                 },
               },
+              message: { type: 'string' },
             },
-            message: { type: 'string' },
           },
-        },
-        500: {
-          type: 'object',
-          properties: {
-            code: { type: 'number' },
-            message: { type: 'string' },
+          500: {
+            type: 'object',
+            properties: {
+              code: { type: 'number' },
+              message: { type: 'string' },
+            },
           },
         },
       },
     },
-  }, async (req, res) => {
-    const { groupID, padName, text, authorId } = req.body;
-    try {
-      const pad = await createGroupPad(groupID, padName, text, authorId);
-      return {
-        code: 0,
-        data: {
-          pad,
-        },
-        message: 'ok',
-      };
-    } catch (e: any) {
-      return {
-        code: 1,
-        message: e.message,
-      };
+    async (req, res) => {
+      const { groupID, padName, text, authorId } = req.body;
+      try {
+        const pad = await createGroupPad(groupID, padName, text, authorId);
+        return {
+          code: 0,
+          data: {
+            pad,
+          },
+          message: 'ok',
+        };
+      } catch (e: any) {
+        return {
+          code: 1,
+          message: e.message,
+        };
+      }
     }
-  });
-
+  );
 
   fastifyServer.get<{
     Params: {
       padID: string;
-    }
-  }>(`${BASE_PATH}/:padID`, {
-    schema: {
-      tags: ['pad'],
-      params: {
-        padID: { type: 'string' },
-      },
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            code: { type: 'number' },
-            data: {
-              type: 'object',
-              properties: {
-                pad: {
-                  type: 'object',
-                  properties: {
-                    padID: { type: 'string' },
+    };
+  }>(
+    `${BASE_PATH}/:padID`,
+    {
+      schema: {
+        tags: ['pad'],
+        params: {
+          padID: { type: 'string' },
+        },
+        response: {
+          200: {
+            type: 'object',
+            properties: {
+              code: { type: 'number' },
+              data: {
+                type: 'object',
+                properties: {
+                  pad: {
+                    type: 'object',
+                    properties: {
+                      padID: { type: 'string' },
+                    },
                   },
                 },
               },
+              message: { type: 'string' },
             },
-            message: { type: 'string' },
           },
-        },
-        500: {
-          type: 'object',
-          properties: {
-            code: { type: 'number' },
-            message: { type: 'string' },
+          500: {
+            type: 'object',
+            properties: {
+              code: { type: 'number' },
+              message: { type: 'string' },
+            },
           },
         },
       },
     },
-
-  }, async (req,
-                                   res) => {
-    const padID = req.params.padID;
-    try {
-      const pad = await padManagerInstance.getPad(padID);
-      return {
-        code: 0,
-        data: {
-          pad: pad,
-        },
-        message: 'ok',
-      };
-    } catch (e: any) {
-      return {
-        code: 1,
-        message: e.message,
-      };
+    async (req, res) => {
+      const padID = req.params.padID;
+      try {
+        const pad = await padManagerInstance.getPad(padID);
+        return {
+          code: 0,
+          data: {
+            pad: pad,
+          },
+          message: 'ok',
+        };
+      } catch (e: any) {
+        return {
+          code: 1,
+          message: e.message,
+        };
+      }
     }
-  });
-
+  );
 
   fastifyServer.post<{
     Body: {
       padID: string;
       text: string;
       authorId?: string;
-    }
-  }>(BASE_PATH, {
-    schema: {
-      tags: ['pad'],
-      body: {
-        type: 'object',
-        properties: {
-          padID: { type: 'string' },
-          text: { type: 'string' },
-          authorId: { type: 'string' },
-        },
-        required: ['padID', 'text'],
-      },
-      response: {
-        200: {
+    };
+  }>(
+    BASE_PATH,
+    {
+      schema: {
+        tags: ['pad'],
+        body: {
           type: 'object',
           properties: {
-            code: { type: 'number' },
-            data: {
-              type: 'object',
-              properties: {
-                pad: {
-                  type: 'object',
-                  properties: {
-                    padID: { type: 'string' },
+            padID: { type: 'string' },
+            text: { type: 'string' },
+            authorId: { type: 'string' },
+          },
+          required: ['padID', 'text'],
+        },
+        response: {
+          200: {
+            type: 'object',
+            properties: {
+              code: { type: 'number' },
+              data: {
+                type: 'object',
+                properties: {
+                  pad: {
+                    type: 'object',
+                    properties: {
+                      padID: { type: 'string' },
+                    },
                   },
                 },
               },
+              message: { type: 'string' },
             },
-            message: { type: 'string' },
           },
-        },
-        500: {
-          type: 'object',
-          properties: {
-            code: { type: 'number' },
-            message: { type: 'string' },
+          500: {
+            type: 'object',
+            properties: {
+              code: { type: 'number' },
+              message: { type: 'string' },
+            },
           },
         },
       },
     },
-  }, async (req, res) => {
+    async (req, res) => {
+      const { padID, text, authorId } = req.body;
+      if (padID) {
+        // ensure there is no $ in the padID
+        if (padID.indexOf('$') !== -1) {
+          throw new CustomError(
+            "createPad can't create group pads",
+            'apierror'
+          );
+        }
 
-    const { padID, text, authorId } = req.body;
-    if (padID) {
-      // ensure there is no $ in the padID
-      if (padID.indexOf('$') !== -1) {
-        throw new CustomError('createPad can\'t create group pads', 'apierror');
+        // check for url special characters
+        if (padID.match(/(\/|\?|&|#)/)) {
+          throw new CustomError(
+            'malformed padID: Remove special characters',
+            'apierror'
+          );
+        }
       }
 
-      // check for url special characters
-      if (padID.match(/(\/|\?|&|#)/)) {
-        throw new CustomError('malformed padID: Remove special characters', 'apierror');
-      }
+      // create pad
+      await getPadSafe(padID, false, text, authorId);
     }
-
-    // create pad
-    await getPadSafe(padID, false, text, authorId);
-  });
+  );
 };
 
-
 // gets a pad safe
-export const getPadSafe = async (padID: string | object, shouldExist: boolean, text?: string, authorId: string = '') => {
+export const getPadSafe = async (
+  padID: string | object,
+  shouldExist: boolean,
+  text?: string,
+  authorId: string = ''
+) => {
   // check if padID is a string
   if (typeof padID !== 'string') {
     throw new CustomError('padID is not a string', 'apierror');

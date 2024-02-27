@@ -7,7 +7,9 @@ export class StringAssembler {
     this.str = '';
   }
 
-  clear() { this.str = ''; }
+  clear() {
+    this.str = '';
+  }
   append = (s: string) => {
     this.str += String(s);
   };

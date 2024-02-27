@@ -5,7 +5,7 @@ import { numToString } from '@/utils/service/utilFuncs';
  * An operation to apply to a shared document.
  */
 export class Op {
-  opcode: ('' | '=' | '+' | '-');
+  opcode: '' | '=' | '+' | '-';
   chars: number;
   lines: number;
   attribs: string;
@@ -72,7 +72,8 @@ export class Op {
    */
   toString(): string {
     if (!this.opcode) throw new TypeError('null op');
-    if (typeof this.attribs !== 'string') throw new TypeError('attribs must be a string');
+    if (typeof this.attribs !== 'string')
+      throw new TypeError('attribs must be a string');
     const l = this.lines ? `|${numToString(this.lines)}` : '';
     return this.attribs + l + this.opcode + numToString(this.chars);
   }
