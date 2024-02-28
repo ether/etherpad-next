@@ -10,7 +10,13 @@ import {
   BASE_PATH_AUTHOR_PAD,
   BASE_PATH_AUTHORS,
 } from '@/api/constants';
+import { EVENT_EMITTER } from '@/hooks/Hook';
 
+
+EVENT_EMITTER.on('fastifyServerReady', async () => {
+  initAuthor();
+
+});
 
 export const initAuthor = () => {
   fastifyServer.post<{
