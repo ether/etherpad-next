@@ -5,8 +5,16 @@ import {
   createGroupIfNotExistsFor,
   deleteGroup,
 } from '@/service/pads/GroupManager';
+import { EVENT_EMITTER } from '@/hooks/Hook';
+import { initAuthor } from '@/api/author/init';
 
 const basePath = '/api/groups';
+
+
+EVENT_EMITTER.on('fastifyServerReady', async () => {
+  initGroups();
+});
+
 export const initGroups = () => {
   fastifyServer.post<{
     Querystring: {

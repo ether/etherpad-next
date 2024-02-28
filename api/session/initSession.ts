@@ -6,6 +6,13 @@ import {
   getSessionInfo,
   listSessionsOfGroup,
 } from '@/service/pads/SessionManager';
+import { EVENT_EMITTER } from '@/hooks/Hook';
+import { BASE_PATH_SESSIONS } from '@/api/constants';
+
+EVENT_EMITTER.on('fastifyServerReady', async () => {
+  initSession();
+});
+
 
 export const initSession = () => {
   fastifyServer.post<{
@@ -15,7 +22,7 @@ export const initSession = () => {
       validUntil: number;
     };
   }>(
-    '/api/session',
+    BASE_PATH_SESSIONS,
     {
       schema: {
         tags: ['session'],
@@ -79,7 +86,7 @@ export const initSession = () => {
       sessionId: string;
     };
   }>(
-    '/api/session/:sessionId',
+    BASE_PATH_SESSIONS+'/:sessionId',
     {
       schema: {
         tags: ['session'],
@@ -126,7 +133,7 @@ export const initSession = () => {
       sessionId: string;
     };
   }>(
-    '/api/session/:sessionId',
+    BASE_PATH_SESSIONS+'/:sessionId',
     {
       schema: {
         tags: ['session'],
@@ -180,7 +187,7 @@ export const initSession = () => {
       groupId: string;
     };
   }>(
-    '/api/session/:groupId/groups',
+    BASE_PATH_SESSIONS+'/:groupId/groups',
     {
       schema: {
         tags: ['session'],
@@ -234,7 +241,7 @@ export const initSession = () => {
       authorId: string;
     };
   }>(
-    '/api/session/:authorId/author',
+    BASE_PATH_SESSIONS+'/:authorId/author',
     {
       schema: {
         tags: ['session'],

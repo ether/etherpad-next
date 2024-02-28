@@ -1,11 +1,9 @@
-import { initGroups } from './groups/api';
-import { initPads } from '@/api/pads/init';
-import { initAuthor } from '@/api/author/init';
-import { initSession } from '@/api/session/initSession';
+import "./author/init";
+import "./groups/api";
+import "./pads/init";
+import "./swagger/initSwagger";
+import "./swagger/ErrorHandler";
+import "./session/initSession";
 
-export const initAPIRoots = () => {
-  initGroups();
-  initPads();
-  initAuthor();
-  initSession();
-};
+console.log("API roots initialized");
+

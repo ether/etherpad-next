@@ -5,12 +5,6 @@ export const BASE_PATH_PADS = `${BASE_PATH}/pads`;
 export const BASE_PATH_SESSIONS = `${BASE_PATH}/sessions`;
 
 
-
-
-
-
-
-
 // Special paths for authors
 
 export const BASE_PATH_AUTHOR_PAD = `${BASE_PATH_AUTHORS}/:authorID/pads`;

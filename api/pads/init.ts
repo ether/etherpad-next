@@ -2,9 +2,17 @@ import { fastifyServer } from '@/server';
 import { padManagerInstance } from '@/service/pads/PadManager';
 import CustomError from '@/utils/service/CustomError';
 import { createGroupPad } from '@/service/pads/GroupManager';
+import { EVENT_EMITTER } from '@/hooks/Hook';
+import { initGroups } from '@/api/groups/api';
 
 const BASE_PATH = '/api/pads';
 const GROUP_PAD_PREFIX = '/api/groupPads';
+
+EVENT_EMITTER.on('fastifyServerReady', async () => {
+  initPads();
+});
+
+
 export const initPads = () => {
   fastifyServer.get(
     BASE_PATH,
