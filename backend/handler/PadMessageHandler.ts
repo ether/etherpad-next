@@ -1,5 +1,5 @@
 import { io } from '@/backend/socketio';
-import { AText, PadAuthor, PadType } from '@/types/PadType';
+import { AText, PadAuthor } from '@/types/PadType';
 import {
   getAuthor,
   getAuthorColorId,
