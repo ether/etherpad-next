@@ -14,8 +14,8 @@
     "prettier:check": "prettier --check . --cache --cache-strategy=content --cache-location=.prettiercache",
     "type-check": "tsc --noEmit",
     "format": "npm run lint:js -- --fix && npm run lint:css -- --fix && npm run prettier",
-    "storybook": "BUILD_ENV=storybook  storybook dev -p 6006 --quiet --no-open",
-    "storybook:build": "BUILD_ENV=storybook  storybook build",
+    "storybook": "cross-env  BUILD_ENV=storybook  storybook dev -p 6006 --quiet --no-open",
+    "storybook:build": "cross-env   BUILD_ENV=storybook  storybook build",
     "test": "vitest"
   },
   "dependencies": {

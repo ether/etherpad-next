@@ -4,7 +4,7 @@ name: Deploy to GitHub Pages
 on:
   # Runs on pushes targeting the default branch
   push:
-    branches: 'main'
+    branches: 'fix/storybook'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -29,16 +29,8 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Setup Pages
-        uses: actions/configure-pages@v3
-      - run: npm ci
-      - run: npm run storybook:build
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - id: build-publish
+        uses: bitovi/github-actions-storybook-to-github-pages@v1.0.2
         with:
-          path: './storybook-static'
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v2
+          path: ./storybook-static
+          build_command: npm run storybook:build
