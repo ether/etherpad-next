@@ -33,12 +33,12 @@ import { settingsLoaded } from '@/server';
 export class Pad {
   private db: any;
   readonly atext: AText;
-  private pool: AttributePool;
-  private head: number;
-  private chatHead: number;
+  pool: AttributePool;
+  public head: number;
+  chatHead: number;
   private publicStatus: boolean;
-  private id: string;
-  private savedRevisions: any[];
+  id: string;
+  private readonly savedRevisions: any[];
 
   constructor(id: string, database = db) {
     this.db = database;
@@ -635,7 +635,7 @@ export class Pad {
     await this.saveToDatabase();
   }
 
-  async addSavedRevision(revNum: string, savedById: string, label: string) {
+  async addSavedRevision(revNum: number, savedById: string, label?: string) {
     // if this revision is already saved, return silently
     for (const i in this.savedRevisions) {
       if (this.savedRevisions[i] && this.savedRevisions[i].revNum === revNum) {

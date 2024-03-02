@@ -16,7 +16,7 @@ type ChatObject = {
 class ChatMessage {
   private text: string | null;
   authorId: string | null;
-  private time: number | null;
+  time: number | null;
   displayName: string | null;
   static fromObject(obj: ChatObject): ChatMessage {
     // The userId property was renamed to authorId, and userName was renamed to displayName. Accept

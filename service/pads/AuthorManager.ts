@@ -170,6 +170,10 @@ export const getAuthorColorId = async (author: string) =>
   // @ts-ignore
   await db!.getSub(`globalAuthor:${author}`, ['colorId']);
 
+export const getAuthorId = async (token: string, user: object) => {
+  const context = {dbKey: token, token, user};
+  return await getAuthor4Token(context.dbKey);
+};
 /**
  * Sets the color Id of the author
  * @param {String} author The id of the author
