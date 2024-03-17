@@ -18,6 +18,7 @@ export default function Page() {
   useEffect(() => {
     console.log('ws', ws);
     ws?.addEventListener('message', onMessage);
+
     return () => ws?.removeEventListener('message', onMessage);
   }, [onMessage, ws]);
 

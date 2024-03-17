@@ -1,9 +1,8 @@
-import type { Meta as MetaObj, StoryObj } from '@storybook/react';
-
 import Apple from './Apple';
 import Generic from './Generic';
 import Linux from './Linux';
 import Microsoft from './Microsoft';
+import type { Meta as MetaObj, StoryObj } from '@storybook/react';
 
 export const PlatformLogos: StoryObj = {
   render: () => (
