@@ -16,15 +16,20 @@
     "format": "npm run lint:js -- --fix && npm run lint:css -- --fix && npm run prettier",
     "storybook": "cross-env BUILD_ENV=storybook  storybook dev -p 6006 --quiet --no-open",
     "storybook:build": "cross-env BUILD_ENV=storybook  storybook build",
-    "test": "vitest"
+    "test": "vitest",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio"
   },
   "dependencies": {
+    "@prisma/client": "^5.11.0",
     "@radix-ui/react-avatar": "~1.0.4",
     "@radix-ui/react-select": "~2.0.0",
     "@radix-ui/react-toast": "~1.1.5",
     "classnames": "~2.5.1",
     "lucide-react": "~0.344.0",
     "next": "~14.1.1",
+    "prisma": "^5.11.0",
     "react": "~18.2.0",
     "react-dom": "~18.2.0"
   },
