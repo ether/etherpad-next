@@ -122,7 +122,6 @@ We use [Storybook][] to document our components. Each component should have a st
 
 We use [vitetest](https://vitejs.dev/guide/features.html#testing) to run our tests. It's a fast and reliable test runner that comes with Vite.
 
-
 ### General Guidelines for Storybooks
 
 Storybooks are an essential part of our development process. They help us to document our components and to ensure that the components are working as expected.
@@ -184,4 +183,3 @@ Also the key `packageManager` in `package.json` is set to `npm` so we can't use 
 [Tailwind]: https://tailwindcss.com/
 [TypeScript]: https://www.typescriptlang.org
 [`nvm`]: https://www.nvm.sh
-
