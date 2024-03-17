@@ -26,6 +26,7 @@ yarn-error.log*
 
 # local env files
 .env*.local
+.env
 
 # vercel
 .vercel
@@ -41,3 +42,16 @@ next-env.d.ts
 
 # Turbo
 .turbo
+
+# JetBrains
+.idea
+
+# Production configuration file
+/settings.json
+
+# Storybook
+storybook-static/
+
+# Prisma
+/prisma/migrations/*
+/prisma/@prisma/*

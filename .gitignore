@@ -26,6 +26,7 @@ yarn-error.log*
 
 # local env files
 .env*.local
+.env
 
 # vercel
 .vercel
@@ -47,11 +48,10 @@ next-env.d.ts
 
 # Production configuration file
 /settings.json
+
+# Storybook
 storybook-static/
 
-# Var files
-var/dirty.db
-
-# API keys
-/APIKEY.txt
-
+# Prisma
+/prisma/migrations/*
+/prisma/@prisma/*

@@ -4,9 +4,10 @@
 
 The project is currently under development, so we only support this version(s) of etherpad-next.
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 0.1.X   | :white_check_mark: |
+## Retrocompatibility
+
+Etherpad-next is not retrocompatible with etherpad-lite, so you will need to migrate your data to use it.
 
 > \[!NOTE]\
 > There is no compatibility yet with etherpad-lite
+> 'cause we are still developing the project.
