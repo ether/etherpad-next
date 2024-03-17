@@ -53,7 +53,7 @@
     "next-ws-cli": "^1.0.0",
     "postcss": "~8.4.35",
     "prettier": "~3.2.5",
-    "prettier-plugin-tailwindcss": "~0.5.11",
+    "prettier-plugin-tailwindcss": "~0.5.12",
     "storybook": "~7.6.17",
     "stylelint-config-standard": "~36.0.0",
     "stylelint-order": "~6.0.4",
