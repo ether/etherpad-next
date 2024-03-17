@@ -1,6 +1,8 @@
-import prisma from "@/lib/prisma";
+// @TODO: use correct implementation
+import { PrismaClient } from '@prisma/client';
 
 const GET = async () => {
+  const prisma = new PrismaClient();
 
   await prisma.$connect();
 
@@ -10,7 +12,7 @@ const GET = async () => {
       id: 1,
     },
   });
-  if(!foo) {
+  if (!foo) {
     await prisma.pad.create({
       data: {
         id: 1,
@@ -24,4 +26,7 @@ const GET = async () => {
   return Response.json(foo, { status: 200 });
 };
 
-export { GET };
+// do not cache this route
+const revalidate = 0;
+
+export { GET, revalidate };

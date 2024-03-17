@@ -1,5 +1,7 @@
-/** @type {import('next').NextConfig} */
+import { verifyPatch } from 'next-ws/server/index.js';
+verifyPatch();
 
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   // need to be test on CI but not on building of the app
   typescript: {

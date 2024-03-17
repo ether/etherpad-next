@@ -51,3 +51,6 @@ next-env.d.ts
 
 # Storybook
 storybook-static/
+
+# Prisma
+/prisma/migrations/*
