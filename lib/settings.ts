@@ -10,6 +10,7 @@ const getSettings = async () => {
         .then(schema => schema);
     })
     .then(settings => settings);
+
   return JSON.parse(data);
 };
 

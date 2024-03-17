@@ -9,23 +9,23 @@
       "persistent": true
     },
     "lint:js": {
-      "cache": false,
+      "cache": true,
       "outputs": [".eslintjscache"]
     },
     "lint:css": {
-      "cache": false,
+      "cache": true,
       "outputs": [".stylelintcache"]
     },
     "prettier": {
-      "cache": false,
+      "cache": true,
       "outputs": [".prettiercache"]
     },
     "prettier:check": {
-      "cache": false,
+      "cache": true,
       "outputs": [".prettiercache"]
     },
     "format": {
-      "cache": false,
+      "cache": true,
       "outputs": [".eslintjscache", ".stylelintcache", ".prettiercache"]
     }
   }
