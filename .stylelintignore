@@ -1,6 +1,6 @@
 # See https://stylelint.io/user-guide/ignore-code/#files-entirely for more about ignoring files.
 
- dependencies
+# dependencies
 /node_modules
 /.pnp
 .pnp.js
@@ -54,3 +54,4 @@ storybook-static/
 
 # Prisma
 /prisma/migrations/*
+/prisma/@prisma/*

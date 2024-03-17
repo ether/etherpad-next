@@ -9,11 +9,22 @@ This documenation is for Etherpad-next collaborator.
 - Node.js
 - npm
 - MySQL
-- have filled the .env file
+- Have filled the .env file
+- Have setup the settings of app
 
 ```
 npm i
 npx prisma migrate dev
 npx turbo build
 npx turbo start
+```
+
+## How to setup the settings of app
+
+Create a `settings.json` file on roots of the project.
+
+```json
+{
+  "$schema": "./settings.schema.json"
+}
 ```

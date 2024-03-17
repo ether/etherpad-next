@@ -54,3 +54,4 @@ storybook-static/
 
 # Prisma
 /prisma/migrations/*
+/prisma/@prisma/*

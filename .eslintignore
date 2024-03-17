@@ -1,6 +1,6 @@
 # See https://eslint.org/docs/latest/use/configure/ignore#the-eslintignore-file for more about ignoring files.
 
- dependencies
+# dependencies
 /node_modules
 /.pnp
 .pnp.js
@@ -54,3 +54,4 @@ storybook-static/
 
 # Prisma
 /prisma/migrations/*
+/prisma/@prisma/*

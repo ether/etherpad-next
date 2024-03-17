@@ -4,14 +4,17 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
-generator client {
+generator client_mysql {
+  output = "@prisma/client/mysql"
   provider = "prisma-client-js"
 }
 
-datasource db {
+
+datasource mysql {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
 
 model Pad {
   id        Int      @id @default(autoincrement())

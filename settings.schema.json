@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Etherpad Configuration",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "The title of the Etherpad instance.",
+      "default": "Etherpad"
+    },
+    "defaultPadText": {
+      "type": "string",
+      "description": "The default text displayed in new pads.",
+      "default": "Welcome to Etherpad!\n\nThis pad text is synchronized as you type, so that everyone viewing this page sees the same text. This allows you to collaborate seamlessly on documents!\n\nGet involved with Etherpad at https://etherpad.org\n"
+    }
+  },
+  "required": ["title", "defaultPadText"]
+}
