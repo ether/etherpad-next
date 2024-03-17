@@ -1,6 +1,7 @@
-<h1 style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+<h1 align="center">
 <img src="./public/static/logo.svg" width="200px">
-- NEXT
+<br>
+NEXT
 </h1>
 
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/ether/etherpad-next/badge)](https://securityscorecards.dev/viewer/?uri=github.com/ether/etherpad-next)
