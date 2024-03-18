@@ -82,6 +82,27 @@
           "disallow": ["/"]
         }
       }
+    },
+    "manifest": {
+      "type": "object",
+      "properties": {
+        "icons": {
+          "type": "object",
+          "properties": {
+            "src": { "type": "string" },
+            "sizes": { "type": "string" },
+            "type": { "type": "string" },
+            "prupose": { "enum": ["any", "maskable", "monochrome", "badge"] }
+          }
+        }
+      },
+      "default": {
+        "icons": {
+          "src": "/static/logo.svg",
+          "sizes": "192x192",
+          "type": "image/svg+xml"
+        }
+      }
     }
   }
 }
