@@ -12,7 +12,76 @@
       "type": "string",
       "description": "The default text displayed in new pads.",
       "default": "Welcome to Etherpad!\n\nThis pad text is synchronized as you type, so that everyone viewing this page sees the same text. This allows you to collaborate seamlessly on documents!\n\nGet involved with Etherpad at https://etherpad.org\n"
+    },
+    "robots": {
+      "type": "object",
+      "properties": {
+        "rules": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "userAgent": {
+                  "oneOf": [
+                    { "type": "string" },
+                    { "type": "array", "items": { "type": "string" } }
+                  ]
+                },
+                "allow": {
+                  "oneOf": [
+                    { "type": "string" },
+                    { "type": "array", "items": { "type": "string" } }
+                  ]
+                },
+                "disallow": {
+                  "oneOf": [
+                    { "type": "string" },
+                    { "type": "array", "items": { "type": "string" } }
+                  ]
+                },
+                "crawlDelay": { "type": "number" }
+              },
+              "required": ["userAgent"]
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "userAgent": {
+                    "oneOf": [
+                      { "type": "string" },
+                      { "type": "array", "items": { "type": "string" } }
+                    ]
+                  },
+                  "allow": {
+                    "oneOf": [
+                      { "type": "string" },
+                      { "type": "array", "items": { "type": "string" } }
+                    ]
+                  },
+                  "disallow": {
+                    "oneOf": [
+                      { "type": "string" },
+                      { "type": "array", "items": { "type": "string" } }
+                    ]
+                  },
+                  "crawlDelay": { "type": "number" }
+                },
+                "required": ["userAgent"]
+              }
+            }
+          ]
+        },
+        "host": { "type": "string" }
+      },
+      "required": ["rules"],
+      "default": {
+        "rules": {
+          "userAgent": "*",
+          "disallow": ["/"]
+        }
+      }
     }
-  },
-  "required": ["title", "defaultPadText"]
+  }
 }
