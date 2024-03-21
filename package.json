@@ -20,7 +20,7 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
-    "postinstall": "npx next-ws-cli patch"
+    "postinstall": "npx next-ws-cli patch --yes"
   },
   "dependencies": {
     "@prisma/client": "~5.11.0",
