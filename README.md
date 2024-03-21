@@ -9,12 +9,3 @@ A list of breaking changes will be provided at release.
 
 - [User Documentation](docs/User.md)
 - [Technical Documentation](docs/Technical.md)
-
-## Setup
-
-### Development
-
-```
-docker compose up -d
-docker compose exec app npm run dev
-```

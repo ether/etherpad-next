@@ -17,6 +17,15 @@ This documentation is for Etherpad-next collaborator.
 - [eslint](https://www.eslint.org)
 - [stylelint](https://www.stylelint.io)
 
+## Setup
+
+### Development
+
+```
+docker compose up -d
+docker compose exec app npm run dev
+```
+
 ## Creating React Components
 
 We uses [React][] as a Frontend Library to develop the Website.
