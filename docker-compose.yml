@@ -20,7 +20,7 @@ services:
     environment:
       # change from development to production if needed
       NODE_ENV: development
-      DATABASE_PROVIDER: ${DOCKER_COMPOSE_DATABASE_PROVIDER:-postgres}
+      DATABASE_PROVIDER: ${DATABASE_PROVIDER:-postgres}
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
     restart: always
     ports:
