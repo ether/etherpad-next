@@ -26,7 +26,7 @@ docker compose up -d
 docker compose exec app npm i
 # creates db structure without using migrations
 docker compose exec app npx prisma db push
-docker compose exec app npm run dev
+docker compose exec app npx turbo dev
 ```
 
 ## Creating React Components

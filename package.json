@@ -23,6 +23,7 @@
     "postinstall": "npx next-ws-cli patch --yes"
   },
   "dependencies": {
+    "turbo": "1.13.0",
     "@prisma/client": "~5.11.0",
     "@radix-ui/react-avatar": "~1.0.4",
     "@radix-ui/react-select": "~2.0.0",
