@@ -25,7 +25,7 @@ This documentation is for Etherpad-next collaborator.
 docker compose up -d
 docker compose exec app npm i
 # creates db structure without using migrations
-docker compose exec npx prisma db push
+docker compose exec app npx prisma db push
 docker compose exec app npm run dev
 ```
 
