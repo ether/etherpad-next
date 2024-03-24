@@ -21,7 +21,7 @@ This documentation is for Etherpad-next collaborator.
 
 ### Development
 
-```
+```bash
 docker compose up -d
 docker compose exec app npm i
 # creates db structure without using migrations
