@@ -9,12 +9,15 @@ generator client_mysql {
   provider = "prisma-client-js"
 }
 
-
-datasource mysql {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+generator client_postgresql {
+  provider = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
 
 model Pad {
   id        Int      @id @default(autoincrement())

@@ -63,6 +63,7 @@
     "stylelint-order": "~6.0.4",
     "stylelint-selector-bem-pattern": "~4.0.0",
     "tailwindcss": "~3.4.1",
+    "turbo": "1.13.0",
     "typescript": "~5.4.2",
     "vite-tsconfig-paths": "~4.3.2",
     "vitest": "~1.4.0"

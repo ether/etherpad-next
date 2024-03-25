@@ -8,16 +8,34 @@ This documenation is for Etherpad-next collaborator.
 
 - Node.js
 - npm
-- MySQL
+- Docker (optional)
+- Postgres or mysql (Postgres is recommended and default)
 - Have filled the .env file
 - Have setup the settings of app
 
+### Run the app
+
+**Using docker-compose:**
+
+```bash
+docker compose up -d
+docker compose exec app npm i
+docker compose exec app npx prisma db push
+docker compose exec app npx turbo build
+docker compose exec app npm run start
 ```
+
+**Using own machine:**
+
+> [!IMPORTANT]\
+> You need to have a postgres database running on your machine.
+
+````bash
 npm i
-npx prisma migrate dev
+npx prisma db push
 npx turbo build
-npx turbo start
-```
+npm run start```
+
 
 ## How to setup the settings of app
 
@@ -27,4 +45,4 @@ Create a `settings.json` file on roots of the project.
 {
   "$schema": "./settings.schema.json"
 }
-```
+````
