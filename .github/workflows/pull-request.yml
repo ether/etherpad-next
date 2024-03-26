@@ -1,0 +1,116 @@
+name: Linting and Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request_target:
+    branches:
+      - main
+    types:
+      - labeled
+  merge_group:
+
+defaults:
+  run:
+    working-directory: ./
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  base:
+    name: Base Tasks
+    runs-on: ubuntu-latest
+    outputs:
+      turbo_args: ${{ steps.turborepo_arguments.outputs.turbo_args }}
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@63c24ba6bd7ba022e95695ff85de572c04a18142 # v2.7.0
+        with:
+          egress-policy: audit
+
+      - name: Provide Turborepo Arguments
+        id: turborepo_arguments
+        # See https://turbo.build/repo/docs/reference/command-line-reference/run#--cache-dir
+        # See https://turbo.build/repo/docs/reference/command-line-reference/run#--force
+        run: echo "turbo_args=--force=true --cache-dir=.turbo/cache" >> "$GITHUB_OUTPUT"
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    needs: [base]
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@63c24ba6bd7ba022e95695ff85de572c04a18142 # v2.7.0
+        with:
+          egress-policy: audit
+
+      - name: Git Checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event.pull_request.head.ref || github.ref }}
+
+      - name: Restore Lint Cache
+        uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+        with:
+          path: |
+            .turbo/cache
+            node_modules/.cache
+            .eslintmdcache
+            .eslintjscache
+            .stylelintcache
+            .prettiercache
+          key: cache-lint-${{ hashFiles('package-lock.json') }}-
+          restore-keys: |
+            cache-lint-${{ hashFiles('package-lock.json') }}-
+            cache-lint-
+
+      - name: Set up Node.js
+        uses: actions/setup-node@b39b52d1213e96004bfcb1c61a8a6fa8ab84f3e8 # v4.0.1
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install npm packages
+        # We also use `npm i` instead of `npm ci` so that the node_modules/.cache folder doesn't get deleted
+        run: npm i --no-audit --no-fund --ignore-scripts --userconfig=/dev/null
+
+      - name: Run `turbo lint:js`
+        id: eslint-step
+        if: |
+          (github.event_name == 'push' || github.event_name == 'merge_group') ||
+          (github.event_name == 'pull_request_target' &&
+            github.event.pull_request.head.ref != 'chore/crowdin')
+        run: npx --package=turbo@latest -- turbo lint:js ${{ needs.base.outputs.turbo_args }}
+      - name: Run `lint:css`
+        if: steps.eslint-step.outcome == 'success'
+        run: npx --package=turbo@latest -- turbo lint:css ${{ needs.base.outputs.turbo_args }}
+
+      - name: Run `turbo prettier`
+        if: steps.eslint-step.outcome == 'success'
+        run: npx --package=turbo@latest -- turbo prettier ${{ needs.base.outputs.turbo_args }}
+
+      - name: Run `tsc build`
+        run: npx --package=typescript@latest -- tsc --build .
+
+      - name: Save Lint Cache
+        if: |
+          github.event_name == 'push' ||
+          (github.event_name == 'pull_request_target' &&
+            startsWith(github.event.pull_request.head.ref, 'dependabot/') == false &&
+            github.event.pull_request.head.ref != 'chore/crowdin')
+        uses: actions/cache/save@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+        with:
+          path: |
+            .turbo/cache
+            node_modules/.cache
+            .eslintmdcache
+            .eslintjscache
+            .stylelintcache
+            .prettiercache
+          key: cache-lint-${{ hashFiles('package-lock.json') }}-${{ hashFiles('.turbo/cache/**') }}
