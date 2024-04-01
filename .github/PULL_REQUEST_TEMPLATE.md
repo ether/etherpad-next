@@ -24,3 +24,4 @@ You can check the items by adding an `x` between the brackets, like this: `[x]`
 - [ ] I have formatted using `npx turbo format`
 - [ ] I have checked the types using `npx turbo type-check`
 - [ ] I have tested the build using `npx turbo build`
+- [ ] I have covered the code with tests if necessary

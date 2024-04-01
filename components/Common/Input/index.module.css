@@ -1,0 +1,68 @@
+.inputWrapper {
+  @apply flex
+    w-full
+    flex-col
+    gap-1.5;
+
+  .label {
+    @apply block
+      w-full
+      text-sm
+      font-medium
+      text-gray-800
+      dark:text-gray-200;
+  }
+
+  .input {
+    @apply inline-flex
+      h-11
+      w-full
+      min-w-40
+      rounded
+      border
+      border-gray-300
+      bg-white
+      px-3.5
+      py-2.5
+      text-base
+      font-medium
+      text-gray-900
+      shadow-sm
+      outline-none
+      focus:border-gray-500
+      focus:ring-1
+      focus:ring-gray-500
+      dark:border-gray-800
+      dark:bg-gray-950
+      dark:text-white
+      dark:focus:border-gray-600
+      dark:focus:ring-gray-600;
+  }
+
+  &.inline {
+    .input {
+      @apply h-auto
+        min-w-fit
+        px-2.5
+        py-2
+        text-sm
+        font-medium;
+    }
+  }
+
+  &.checkbox {
+    @apply inline-flex
+      flex-row
+      items-center;
+
+    .input {
+      @apply h-auto
+        min-w-fit
+        px-2.5
+        py-2
+        text-sm
+        font-medium
+        accent-ether-500;
+    }
+  }
+}

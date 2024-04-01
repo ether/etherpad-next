@@ -1,0 +1,67 @@
+.button {
+  @apply inline-flex
+    items-center
+    justify-center
+    gap-2
+    rounded-md
+    px-4
+    py-2
+    transition
+    duration-150
+    ease-in-out
+    disabled:cursor-not-allowed;
+}
+
+.solid {
+  @apply bg-ether-500
+    text-white
+    hover:bg-ether-600
+    active:bg-ether-700
+    disabled:bg-ether-200
+    disabled:text-black
+    dark:bg-ether-400
+    dark:text-gray-900
+    dark:hover:bg-ether-300
+    dark:active:bg-ether-500
+    dark:disabled:bg-ether-600
+    dark:disabled:text-white;
+}
+
+.outline {
+  @apply border-2
+    border-ether-500
+    text-ether-500
+    hover:bg-ether-100
+    active:bg-ether-200
+    disabled:border-ether-200
+    disabled:text-ether-200
+    dark:border-ether-400
+    dark:text-ether-400
+    dark:hover:bg-ether-500
+    dark:hover:text-white
+    dark:active:bg-ether-600
+    dark:disabled:border-ether-600
+    dark:disabled:text-ether-600;
+}
+
+.gradient {
+  @apply bg-gradient-to-r
+    from-ether-500
+    to-ether-700
+    text-white
+    hover:from-ether-600
+    hover:to-ether-800
+    active:from-ether-700
+    active:to-ether-900
+    disabled:from-ether-200
+    disabled:to-ether-400
+    dark:from-ether-400
+    dark:to-ether-600
+    dark:hover:from-ether-300
+    dark:hover:to-ether-500
+    dark:active:from-ether-500
+    dark:active:to-ether-700
+    dark:disabled:from-ether-600
+    dark:disabled:to-ether-800
+    dark:disabled:text-white;
+}

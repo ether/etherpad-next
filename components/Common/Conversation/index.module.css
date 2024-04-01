@@ -1,0 +1,15 @@
+.conversation {
+  @apply flex
+    flex-col
+    space-y-2;
+
+  .message {
+    @apply flex
+      items-center
+      gap-2;
+  }
+
+  .messageSender {
+    @apply flex-row-reverse;
+  }
+}

@@ -10,10 +10,24 @@ This documentation is for Etherpad-next collaborator.
 - [PostCSS][]
 - [TypeScript][]
 - [Storybook][]
+- [prisma](https://www.prisma.io)
+- [`lucide-react`](https://www.lucide.dev)
 
 - [prettier](https://www.prettier.io)
 - [eslint](https://www.eslint.org)
 - [stylelint](https://www.stylelint.io)
+
+## Setup
+
+### Development
+
+```bash
+docker compose up -d
+docker compose exec app npm i
+# creates db structure without using migrations
+docker compose exec app npx prisma db push
+docker compose exec app npx turbo dev
+```
 
 ## Creating React Components
 
@@ -105,7 +119,7 @@ export default MyComponent;
 - When importing types, use `import type { NameOfImport } from 'module'`
 - When defining a Component, use the `FC` type from React to define the type of the Component
   - When using `children` as a prop, use the `FC<PropsWithChildren<MyComponentProps>>` type instead
-  - Alternatively you can define your type as `type MyComponentProps = PropsWithChildren<{ my other props }>`
+  - Alternatively you can define your type as `type MyComponentProps = PropsWithChildren<{ my other props }>` **(Recommended)**
 - Each Props type should be prefixed by the name of the Component
 - Components should always be the `default` export of a React Component file
 - Avoid using DOM/Web APIs/`document`/`window` API access within a React Component.
@@ -115,6 +129,10 @@ export default MyComponent;
 ## Unit Tests and Storybooks
 
 We use [Storybook][] to document our components. Each component should have a storybook story that documents the component's usage.
+
+### General Guidelines for Unit Tests
+
+We use [vitetest](https://vitejs.dev/guide/features.html#testing) to run our tests. It's a fast and reliable test runner that comes with Vite.
 
 ### General Guidelines for Storybooks
 
@@ -148,9 +166,32 @@ export default { component: NameOfComponent } as Meta;
 - We recommend reading previous Storybooks from the codebase for inspiration and code guidelines.
 - If you need to decorate/wrap your Component/Story with a Container/Provider, please use [Storybook Decorators](https://storybook.js.org/docs/react/writing-stories/decorators)
 
+## Infrastructure choices
+
+A brief explanation of why we chose the technologies we use.
+
+## Why React?
+
+React is a trendy and modern library for building user interfaces. It allows us to create reusable components and to manage the state of our application in a more predictable way.
+
+We chose React because it's a widely used library and has a large community. This means that we can find a lot of resources and help online and we can also find a lot of people who are familiar with React.
+
+## Why use npm?
+
+npm is the default package manager for Node.js. It allows us to install and manage the dependencies of our project. It also allows us to run scripts and to publish our packages. We selected 'cause dev shouldn't have to install another package manager.
+
+Also the key `packageManager` in `package.json` is set to `npm` so we can't use `yarn` in this project.
+[Read more about `packageManager` in `package.json`](https://nodejs.org/api/packages.html#packagemanager)
+
+## Good to know
+
+- We have `.nvmrc` file in the root of the project. This file is used by [`nvm`][] to set the correct version of Node.js for the project. If you have [`nvm`][] installed, you can run `nvm use` to set the correct version of Node.js for the project.
+- We use [turbo](https://www.turbo.build) to speed up the development process using caching and incremental builds.
+
 [Storybook]: https://storybook.js.org/
 [Next.js]: https://nextjs.org/
 [PostCSS]: https://postcss.org/
 [React]: https://react.dev/
 [Tailwind]: https://tailwindcss.com/
 [TypeScript]: https://www.typescriptlang.org
+[`nvm`]: https://www.nvm.sh

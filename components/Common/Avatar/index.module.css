@@ -1,0 +1,16 @@
+.avatar {
+  @apply flex
+    size-8
+    items-center
+    justify-center
+    rounded-full
+    border-2
+    border-white
+    bg-gray-100
+    object-cover
+    text-xs
+    text-gray-800
+    dark:border-gray-950
+    dark:bg-gray-900
+    dark:text-gray-300;
+}
