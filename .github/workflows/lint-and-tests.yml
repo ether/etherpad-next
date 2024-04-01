@@ -1,0 +1,181 @@
+name: Linting and Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request_target:
+    branches:
+      - main
+    types:
+      - labeled
+  merge_group:
+
+defaults:
+  run:
+    # This ensures that the working directory is the root of the repository
+    working-directory: ./
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  base:
+    name: Base Tasks
+    runs-on: ubuntu-latest
+    outputs:
+      turbo_args: ${{ steps.turborepo_arguments.outputs.turbo_args }}
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@63c24ba6bd7ba022e95695ff85de572c04a18142 # v2.7.0
+        with:
+          egress-policy: audit
+
+      - name: Provide Turborepo Arguments
+        # This step is responsible for providing a reusable string that can be used within other steps and jobs
+        # that use the `turbo` cli command as a way of easily providing shared arguments to the `turbo` command
+        id: turborepo_arguments
+        # See https://turbo.build/repo/docs/reference/command-line-reference/run#--cache-dir
+        # See https://turbo.build/repo/docs/reference/command-line-reference/run#--force
+        run: echo "turbo_args=--force=true --cache-dir=.turbo/cache" >> "$GITHUB_OUTPUT"
+
+  lint:
+    # This Job should run either on `merge_groups` or `push` events
+    # or `pull_request_target` event with a `labeled` action with a label named `github_actions:pull-request`
+    # since we want to run lint checks against any changes on pull requests, or the final patch on merge groups
+    # or if direct pushes happen to main (or when changes in general land on the `main` (default) branch)
+    # Note that the reason why we run this on pushes against `main` is that on rare cases, maintainers might do direct pushes against `main`
+    if: |
+      (github.event_name == 'push' || github.event_name == 'merge_group') ||
+      (github.event_name == 'pull_request_target' &&
+        github.event.label.name == 'github_actions:pull-request')
+
+    name: Lint
+    runs-on: ubuntu-latest
+    needs: [base]
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@63c24ba6bd7ba022e95695ff85de572c04a18142 # v2.7.0
+        with:
+          egress-policy: audit
+
+      - name: Git Checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          # Since we checkout the HEAD of the current Branch, if the Pull Request comes from a Fork
+          # we want to clone the fork's repository instead of the base repository
+          # this allows us to have the correct history tree of the perspective of the Pull Request's branch
+          # If the Workflow is running on `merge_group` or `push` events it fallsback to the base repository
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          # We checkout the branch itself instead of a specific SHA (Commit) as we want to ensure that this Workflow
+          # is always running with the latest `ref` (changes) of the Pull Request's branch
+          # If the Workflow is running on `merge_group` or `push` events it fallsback to `github.ref` which will often be `main`
+          # or the merge_group `ref`
+          ref: ${{ github.event.pull_request.head.ref || github.ref }}
+
+      - name: Restore Lint Cache
+        uses: actions/cache/restore@ab5e6d0c87105b4c9c2047343972218f562e4319 # v4.0.1
+        with:
+          path: |
+            .turbo/cache
+            node_modules/.cache
+            .eslintjscache
+            .stylelintcache
+            .prettiercache
+          # We want to restore Turborepo Cache and ESlint and Prettier Cache
+          # The ESLint and Prettier cache's are useful to reduce the overall runtime of ESLint and Prettier
+          # as they will only run on files that have changed since the last cached run
+          # this might of course lead to certain files not being checked against the linter, but the chances
+          # of such situation from happening are very slim as the checksums of both files would need to match
+          key: cache-lint-${{ hashFiles('package-lock.json') }}-
+          restore-keys: |
+            cache-lint-${{ hashFiles('package-lock.json') }}-
+            cache-lint-
+
+      - name: Set up Node.js
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        with:
+          # We want to ensure that the Node.js version running here respects our supported versions
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install npm packages
+        # We want to avoid npm from running the Audit Step and Funding messages on a CI environment
+        # We also use `npm i` instead of `npm ci` so that the node_modules/.cache folder doesn't get deleted
+        run: npm i --no-audit --no-fund --ignore-scripts --userconfig=/dev/null
+
+      - name: Run `turbo lint`
+        id: eslint-step
+        # We want to enforce that the actual `turbo@latest` package is used instead of a possible hijack from the user
+        # the `${{ needs.base.outputs.turbo_args }}` is a string substitution happening from the base job
+        run: npx --package=turbo@latest -- turbo lint ${{ needs.base.outputs.turbo_args }}
+
+      - name: Run `turbo prettier`
+        if: steps.eslint-step.outcome == 'success'
+        # We want to enforce that the actual `turbo@latest` package is used instead of a possible hijack from the user
+        # the `${{ needs.base.outputs.turbo_args }}` is a string substitution happening from the base job
+        run: npx --package=turbo@latest -- turbo prettier ${{ needs.base.outputs.turbo_args }}
+
+      - name: Generate Prisma client
+        if: steps.eslint-step.outcome == 'success'
+        run: npx prisma generate
+
+      - name: Run `tsc build`
+        # We want to ensure that the whole codebase is passing and successfully compiles with TypeScript
+        run: npx --package=typescript@latest -- tsc --build .
+
+      - name: Save Lint Cache
+        uses: actions/cache/save@ab5e6d0c87105b4c9c2047343972218f562e4319 # v4.0.1
+        with:
+          path: |
+            .turbo/cache
+            node_modules/.cache
+            .eslintjscache
+            .stylelintcache
+            .prettiercache
+          key: cache-lint-${{ hashFiles('package-lock.json') }}-${{ hashFiles('.turbo/cache/**') }}
+
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    needs: [base]
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@63c24ba6bd7ba022e95695ff85de572c04a18142 # v2.7.0
+        with:
+          egress-policy: audit
+
+      - name: Git Checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          # Since we checkout the HEAD of the current Branch, if the Pull Request comes from a Fork
+          # we want to clone the fork's repository instead of the base repository
+          # this allows us to have the correct history tree of the perspective of the Pull Request's branch
+          # If the Workflow is running on `merge_group` or `push` events it fallsback to the base repository
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          # We checkout the branch itself instead of a specific SHA (Commit) as we want to ensure that this Workflow
+          # is always running with the latest `ref` (changes) of the Pull Request's branch
+          # If the Workflow is running on `merge_group` or `push` events it fallsback to `github.ref` which will often be `main`
+          # or the merge_group `ref`
+          ref: ${{ github.event.pull_request.head.ref || github.ref }}
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        with:
+          # We want to ensure that the Node.js version running here respects our supported versions
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install npm packages
+        # We want to avoid npm from running the Audit Step and Funding messages on a CI environment
+        # We also use `npm i` instead of `npm ci` so that the node_modules/.cache folder doesn't get deleted
+        run: npm i --no-audit --no-fund --userconfig=/dev/null
+
+      - name: Run Unit Tests
+        # the `${{ needs.base.outputs.turbo_args }}` is a string substitution happening from the base job
+        run: npx --package=turbo@latest -- turbo test ${{ needs.base.outputs.turbo_args }}
