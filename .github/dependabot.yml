@@ -49,3 +49,15 @@ updates:
       - dependency-name: '@types/node'
         update-types: ['version-update:semver-major']
     open-pull-requests-limit: 10
+
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: meta
+    ignore:
+      # Manually update major versions of node with the version specified within .nvmrc
+      - dependency-name: 'node'
+        update-types: ['version-update:semver-major']
+    open-pull-requests-limit: 10

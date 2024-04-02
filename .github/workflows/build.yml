@@ -1,0 +1,98 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request_target:
+    branches:
+      - main
+    types:
+      - labeled
+  merge_group:
+
+defaults:
+  run:
+    # This ensures that the working directory is the root of the repository
+    working-directory: ./
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  build:
+    # This Job should run either on `merge_groups` or `push` events
+    # or `pull_request_target` event with a `labeled` action with a label named `github_actions:pull-request`
+    # since we want to run Website Builds on all these 3 occasions. As this allows us to be certain the that builds are passing
+    if: |
+      (github.event_name == 'push' || github.event_name == 'merge_group') ||
+      (github.event_name == 'pull_request_target' &&
+        github.event.label.name == 'github_actions:pull-request')
+
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@63c24ba6bd7ba022e95695ff85de572c04a18142 # v2.7.0
+        with:
+          egress-policy: audit
+
+      - name: Provide Turborepo Arguments
+        # This step is responsible for providing a reusable string that can be used within other steps and jobs
+        # that use the `turbo` cli command as a way of easily providing shared arguments to the `turbo` command
+        id: turborepo_arguments
+        # See https://turbo.build/repo/docs/reference/command-line-reference/run#--cache-dir
+        # See https://turbo.build/repo/docs/reference/command-line-reference/run#--force
+        run: echo "turbo_args=--force=true --cache-dir=.turbo/cache" >> "$GITHUB_OUTPUT"
+
+      - name: Use GNU tar instead BSD tar
+        # This ensures that we use GNU `tar` which is more efficient for extracting caches's
+        if: matrix.os == 'windows-latest'
+        shell: cmd
+        run: echo C:\Program Files\Git\usr\bin>>"%GITHUB_PATH%"
+
+      - name: Git Checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          # Since we checkout the HEAD of the current Branch, if the Pull Request comes from a Fork
+          # we want to clone the fork's repository instead of the base repository
+          # this allows us to have the correct history tree of the perspective of the Pull Request's branch
+          # If the Workflow is running on `merge_group` or `push` events it fallsback to the base repository
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          # We checkout the branch itself instead of a specific SHA (Commit) as we want to ensure that this Workflow
+          # is always running with the latest `ref` (changes) of the Pull Request's branch
+          # If the Workflow is running on `merge_group` or `push` events it fallsback to `github.ref` which will often be `main`
+          # or the merge_group `ref`
+          ref: ${{ github.event.pull_request.head.ref || github.ref }}
+          # We only need to fetch the last commit from the head_ref
+          # since we're not using the `--filter` operation from turborepo
+          # We don't use the `--filter` as we always want to force builds regardless of having changes or not
+          # this ensures that our bundle analysis script always runs and that we always ensure next.js is building
+          # regardless of having code changes or not
+          fetch-depth: 1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        with:
+          # We want to ensure that the Node.js version running here respects our supported versions
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install npm packages
+        # We want to avoid npm from running the Audit Step and Funding messages on a CI environment
+        # We also use `npm i` instead of `npm ci` so that the node_modules/.cache folder doesn't get deleted
+        # We also use `--omit=dev` to avoid installing devDependencies as we don't need them during the build step
+        run: npm i --no-audit --no-fund --userconfig=/dev/null --omit=dev
+
+      - name: Build Next.js (ISR)
+        # We want a ISR build on CI to ensure that regular Next.js builds work as expected.
+        # We want to enforce that the actual `turbo@latest` package is used instead of a possible hijack from the user
+        # the `${{ steps.turborepo_arguments.outputs.turbo_args }}` is a string substitution coming from a previous step
+        run: npx --package=turbo@latest -- turbo build ${{ steps.turborepo_arguments.outputs.turbo_args }}

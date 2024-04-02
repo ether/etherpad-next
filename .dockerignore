@@ -1,0 +1,16 @@
+*
+!prisma/
+!providers/
+!public/
+!styles/
+!utils/
+!next-env.d.ts
+!next.config.mjs
+!package-lock.json
+!package.json
+!postcss.config.cjs
+!settings.schema.json
+!tailwind.config.ts
+!tsconfig.json
+!turbo.json
+!vite.config.ts

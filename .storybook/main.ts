@@ -8,6 +8,7 @@ export default {
     '@storybook/addon-essentials',
     '@storybook/addon-themes',
     '@storybook/addon-interactions',
+    '@storybook/addon-a11y',
   ],
   logLevel: 'error',
   staticDirs: ['../public'],
