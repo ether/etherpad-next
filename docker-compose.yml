@@ -29,7 +29,7 @@ services:
       - 6006:6006 
 
   y-redis:
-    build: https://github.com:JannikStreek/y-redis#test-spike
+    build: https://github.com/JannikStreek/y-redis#test-spike
     tty: true
     stdin_open: true
     depends_on:
