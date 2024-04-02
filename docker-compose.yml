@@ -28,7 +28,7 @@ services:
       - 6006:6006 #storybook
 
   y-redis:
-    build: ../jannikstreek/y-redis
+    build: https://github.com:JannikStreek/y-redis#test-spike
     tty: true
     stdin_open: true
     depends_on:
