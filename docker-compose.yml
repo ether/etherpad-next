@@ -25,7 +25,8 @@ services:
     restart: always
     ports:
       - 3000:3000
-      - 6006:6006 #storybook
+      # for storybooks
+      - 6006:6006 
 
   y-redis:
     build: https://github.com:JannikStreek/y-redis#test-spike
@@ -36,7 +37,8 @@ services:
       - redis
     ports:
       - "3002:3002"
-      - "5173:5173" #auth server
+      # auth server
+      - "5173:5173"
     environment:
       POSTGRES: postgres://${POSTGRES_USER:?}:${POSTGRES_PASSWORD:?}@postgres:5432/${POSTGRES_DB:?}
       REDIS: redis://redis:6379
@@ -44,7 +46,7 @@ services:
       AUTH_PUBLIC_KEY: ${AUTH_PUBLIC_KEY:?}
       AUTH_PRIVATE_KEY: ${AUTH_PRIVATE_KEY:?}
       AUTH_PERM_CALLBACK: http://y-redis:5173/auth/perm
-      # YDOC_UPDATE_CALLBACK: http://localhost:5173/ydoc
+      # YDOC_UPDATE_CALLBACK: http://y-redis:5173/ydoc
 
   postgres:
     image: postgres:15-alpine
