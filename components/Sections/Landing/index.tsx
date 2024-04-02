@@ -3,6 +3,7 @@ import BluredBackground from '@/components/Common/Background';
 import Input from '@/components/Common/Input';
 import style from './index.module.css';
 import type { FC } from 'react';
+import Editor from '@/components/NoteBook/Editor';
 
 const Landing: FC = () => (
   <>
@@ -16,6 +17,7 @@ const Landing: FC = () => (
       <form>
         <Input name="note-book-name" placeholder="Note Book Name" type="text" />
         <Button type="submit">Create New Note Book</Button>
+        <Editor ></Editor>
       </form>
     </main>
   </>

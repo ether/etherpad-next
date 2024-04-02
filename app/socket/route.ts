@@ -1,4 +1,5 @@
 import type { WebSocket, WebSocketServer } from 'ws';
+import { setupWSConnection } from 'y-websocket/bin/utils'
 
 // next-ws didn't realy build route so we forced using get route
 export const GET = () =>
@@ -15,13 +16,5 @@ export const SOCKET = (
   request: Request,
   server: WebSocketServer
 ) => {
-  console.log('A client connected!');
-
-  client.on('message', message => {
-    client.send(message);
-  });
-
-  client.on('close', () => {
-    console.log('A client disconnected!');
-  });
+  server.on('connection', setupWSConnection)
 };

@@ -25,6 +25,26 @@ services:
     restart: always
     ports:
       - 3000:3000
+      - 6006:6006 #storybook
+
+  y-redis:
+    build: ../jannikstreek/y-redis
+    tty: true
+    stdin_open: true
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "3002:3002"
+      - "5173:5173" #auth server
+    environment:
+      POSTGRES: postgres://${POSTGRES_USER:?}:${POSTGRES_PASSWORD:?}@postgres:5432/${POSTGRES_DB:?}
+      REDIS: redis://redis:6379
+      PORT: 3002
+      AUTH_PUBLIC_KEY: ${AUTH_PUBLIC_KEY:?}
+      AUTH_PRIVATE_KEY: ${AUTH_PRIVATE_KEY:?}
+      AUTH_PERM_CALLBACK: http://y-redis:5173/auth/perm
+      # YDOC_UPDATE_CALLBACK: http://localhost:5173/ydoc
 
   postgres:
     image: postgres:15-alpine
@@ -39,11 +59,20 @@ services:
     restart: always
     # Exposing the port is not needed unless you want to access this database instance from the host.
     # Be careful when other postgres docker container are running on the same port
-    # ports:
-    #   - "5432:5432"
+    ports:
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data/pgdata
+
+  redis:
+    image: redis:7.2.4-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    volumes: 
+      - redis:/data
 
 volumes:
   postgres_data:
   node_modules:
+  redis:
