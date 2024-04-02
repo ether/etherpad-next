@@ -18,11 +18,14 @@ const getSettings = async () => {
         .then(schema => {
           const json = JSON.parse(schema);
 
-          return Object.keys(json.properties).reduce((acc: Settings, key: string) => {
-            acc[key] = json.properties[key].default;
+          return Object.keys(json.properties).reduce(
+            (acc: Settings, key: string) => {
+              acc[key] = json.properties[key].default;
 
-            return acc;
-          }, {});
+              return acc;
+            },
+            {}
+          );
         });
     })
     .then(settings => {
