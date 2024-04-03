@@ -20,7 +20,8 @@ const Editor: FC = () => {
   useEffect(() => {
     if(editorRef.current) {
       const provider = new WebsocketProvider(
-        'ws://localhost:3002', 'quill-demo-room2', ydoc
+        //'ws://localhost:3002', 'quill-demo-room2', ydoc
+        'ws://localhost:3000/api/room', 'quill-demo-room-websocket-server', ydoc
       )
       provider.on('status', event => {
         console.log(event.status) // logs "connected" or "disconnected"
