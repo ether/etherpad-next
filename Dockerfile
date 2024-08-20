@@ -1,6 +1,6 @@
 # Taken and adjusted from https://github.com/vercel/next.js/blob/canary/examples/with-docker/Dockerfile
 
-FROM node:20-alpine@sha256:66c7d989b6dabba6b4305b88f40912679aebd9f387a5b16ffa76dfb9ae90b060 AS base
+FROM node:20-alpine@sha256:804aa6a6476a7e2a5df8db28804aa6c1c97904eefb01deed5d6af24bb51d0c81 AS base
 
 # Install dependencies only when needed
 FROM base AS deps
